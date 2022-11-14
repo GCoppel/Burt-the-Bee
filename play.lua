@@ -8,7 +8,7 @@ local scene = composer.newScene()
 ---------------------------------------------------------------------------------
 
 -- local forward references should go here
-
+--Jayde's test to ensure github is working, will delete later!
 ---------------------------------------------------------------------------------
 
 local spawnGroup = display.newGroup();
