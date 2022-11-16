@@ -11,15 +11,22 @@ local scene = composer.newScene()
 
 ---------------------------------------------------------------------------------
 
-local spawnGroup = display.newGroup();
+local spawned; --Group of spawned objects still in memory. Is removed from memory when scene is destroyed. 
 
 -- "scene:create()"
 function scene:create(event)
 
+   spawned = display.newGroup();
+
    local sceneGroup = self.view
 
+   --local function startPhysics()
    physics.start(); --Start physics calculations
-   physics.setGravity(0,25);
+   physics.setGravity(0, 25);
+   --Runtime:removeEventListener("tap", startPhysics);
+   -- end
+   -- Runtime:addEventListener("tap", startPhysics);
+
 
    --Pause:
    local function Pause()
@@ -52,10 +59,10 @@ function scene:create(event)
    Burt:setFillColor(1, 1, 0);
    sceneGroup:insert(Burt);
 
-   physics.addBody(Burt, "dynamic", {bounce = -1});
+   physics.addBody(Burt, "dynamic", { bounce = -1 });
 
    local ceiling = display.newRect(display.contentCenterX, 0, 1000, 1);
-   ceiling:setFillColor(0,0,0,0);
+   ceiling:setFillColor(0, 0, 0, 0);
    sceneGroup:insert(ceiling);
    physics.addBody(ceiling, "static");
 
@@ -64,13 +71,13 @@ function scene:create(event)
    end
 
    local ground = display.newRect(display.contentCenterX, display.contentHeight, 1000, 10);
-   ground:setFillColor(0,1,0);
+   ground:setFillColor(0, 1, 0);
    sceneGroup:insert(ground);
    physics.addBody(ground, "static");
    ground:addEventListener("collision", groundCollision)
 
-   local function flyUp()
-      Burt:setLinearVelocity(0,-250);
+   function flyUp()
+      Burt:setLinearVelocity(0, -250);
    end
 
    Runtime:addEventListener("tap", flyUp);
@@ -78,12 +85,12 @@ function scene:create(event)
    local function setRotation()
       local xv, yv = Burt:getLinearVelocity();
       if (yv > 150) then
-         Burt:setLinearVelocity(0,150);
+         Burt:setLinearVelocity(0, 150);
       end
-      Burt.rotation = yv /25;
+      Burt.rotation = yv / 25;
    end
 
-   timer.performWithDelay(10,setRotation,0);
+   timer.performWithDelay(10, setRotation, 0);
 
 end
 
@@ -94,16 +101,23 @@ function scene:show(event)
    local phase = event.phase
 
    if (phase == "will") then
+      display.setDefault("background", 0, 0.9, 1); --Set background to a skyblue color
       -- Called when the scene is still off screen (but is about to come on screen).
    elseif (phase == "did") then
-
-      display.setDefault("background", 0, 0.9, 1); --Set background to a skyblue color
 
       local hornetOrLife;
       local object;
 
-      local function deleteObject()
-         object:removeSelf();
+      local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
+      local objectIndex; --Location of target object in "objects" table
+
+      --Function to find the index of a value in a table:
+      function indexOf(table, value)
+         for index, val in ipairs(table) do
+            if value == val then
+               return index
+            end
+         end
       end
 
       local function collisionDetected(event)
@@ -112,12 +126,27 @@ function scene:show(event)
          else
             print("bonus!")
          end
+         --Remove collision object from table of objects and then from memory
+         objectIndex = indexOf(objects, event.target);
+         table.remove(objects, objectIndex);
          event.target:removeSelf();
+      end
+
+      --Removes offscreen hornets and bonus items from memory
+      local function cleanup()
+         for _, object in ipairs(objects) do
+            print(object.type,object.x);
+            if (object.x < -50) then
+               objectIndex = indexOf(objects, object);
+               table.remove(objects, objectIndex);
+               object:removeSelf();
+            end
+         end
       end
 
       local function spawnObject()
          hornetOrLife = math.random(1, 2);
-         local spawnHeight = math.random(50,450);
+         local spawnHeight = math.random(50, 450);
          if (hornetOrLife == 1) then
             object = display.newRect(600, spawnHeight, 45, 30);
             object:setFillColor(1, 0, 0);
@@ -129,9 +158,14 @@ function scene:show(event)
 
          physics.addBody(object, "kinematic");
          object.isSensor = true;
-         object:setLinearVelocity(-125,0);
+         object:setLinearVelocity(-125, 0);
 
          object:addEventListener("collision", collisionDetected)
+
+         spawned:insert(object);
+         table.insert(objects, object);
+
+         cleanup();
       end
 
       timer.performWithDelay(
@@ -161,6 +195,9 @@ end
 function scene:destroy(event)
 
    local sceneGroup = self.view
+
+   Runtime:removeEventListener("tap", flyUp);
+   spawned:removeSelf();
 
    -- Called prior to the removal of scene's view ("sceneGroup").
    -- Insert code here to clean up the scene.

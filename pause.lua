@@ -24,6 +24,8 @@ function scene:create(event)
     --Back Button (return to main menu):
     local function goBack()
         composer.gotoScene("home");
+        timer.cancelAll();
+        composer.removeScene("play");
     end
 
     local options = {
