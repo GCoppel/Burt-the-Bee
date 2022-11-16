@@ -2,30 +2,23 @@ local composer = require("composer")
 local physics = require("physics")
 local scene = composer.newScene()
 
----------------------------------------------------------------------------------
--- All code outside of the listener functions will only be executed ONCE
--- unless "composer.removeScene()" is called.
----------------------------------------------------------------------------------
 
--- local forward references should go here
---
----------------------------------------------------------------------------------
+local spawned; --Group of spawned objects still in memory. Is removed from memory when scene is destroyed.
 
-local spawned; --Group of spawned objects still in memory. Is removed from memory when scene is destroyed. 
+local gameRunning;
 
 -- "scene:create()"
 function scene:create(event)
 
    spawned = display.newGroup();
+   gameRunning = false; --Game doesn't run until player taps screen
 
    local sceneGroup = self.view
 
-   --local function startPhysics()
    physics.start(); --Start physics calculations
    physics.setGravity(0, 25);
-   --Runtime:removeEventListener("tap", startPhysics);
-   -- end
-   -- Runtime:addEventListener("tap", startPhysics);
+
+   physics.pause();
 
 
    --Pause:
@@ -39,32 +32,21 @@ function scene:create(event)
       });
    end
 
-   local options = {
-      x = 500,
-      y = 50,
-      width = 100,
-      height = 50,
-      label = "Pause",
-      labelColor = { default = { 1, 1, 0 }, over = { 0, 0, 0 } },
-      onPress = Pause,
-      shape = "roundedRect",
-      fillColor = { default = { 0, 0, 0, 0.1 }, over = { 1, 1, 0 } },
-      strokeColor = { default = { 1, 1, 0 }, over = { 1, 1, 0 } },
-      strokeWidth = 2
-   }
-   local pauseButton = widget.newButton(options);
-   sceneGroup:insert(pauseButton);
-
-   local Burt = display.newRect(display.contentCenterX - 100, display.contentCenterY, 45, 30);
+   local Burt = display.newRect(display.contentCenterX - 500, display.contentCenterY, 45, 30);
    Burt:setFillColor(1, 1, 0);
    sceneGroup:insert(Burt);
 
    physics.addBody(Burt, "dynamic", { bounce = -1 });
 
-   local ceiling = display.newRect(display.contentCenterX, 0, 1000, 1);
+   local ceiling = display.newRect(display.contentCenterX, 0, 2000, 1);
    ceiling:setFillColor(0, 0, 0, 0);
    sceneGroup:insert(ceiling);
    physics.addBody(ceiling, "static");
+
+   local tapToStartText = display.newText(
+      "Tap to Start", display.contentCenterX, display.contentCenterY, native.systemFont, 25);
+      tapToStartText:setFillColor(0,0,0, 0.5);
+      sceneGroup:insert(tapToStartText);
 
    local function groundCollision()
       print("ground hit, dead");
@@ -77,6 +59,30 @@ function scene:create(event)
    ground:addEventListener("collision", groundCollision)
 
    function flyUp()
+      if (gameRunning == false) then -- Start game
+         transition.to(tapToStartText, {alpha = 0, time = 500}); --Hide "Tap to Start" message
+         transition.to(Burt, {x = display.contentCenterX - 100, time = 5000, transition=easing.outExpo}); --Bring Burt on screen
+         physics.start();
+         gameRunning = true;
+
+         --Add Pause Button:
+         local options = {
+            x = 500,
+            y = 50,
+            width = 100,
+            height = 50,
+            label = "Pause",
+            labelColor = { default = { 1, 1, 0 }, over = { 0, 0, 0 } },
+            onPress = Pause,
+            shape = "roundedRect",
+            fillColor = { default = { 0, 0, 0, 0.1 }, over = { 1, 1, 0 } },
+            strokeColor = { default = { 1, 1, 0 }, over = { 1, 1, 0 } },
+            strokeWidth = 2
+         }
+         local pauseButton = widget.newButton(options);
+         sceneGroup:insert(pauseButton);
+         transition.from(pauseButton, {alpha = 0, time = 1000}); --Fade in Pause Button
+      end
       Burt:setLinearVelocity(0, -250);
    end
 
@@ -135,7 +141,6 @@ function scene:show(event)
       --Removes offscreen hornets and bonus items from memory
       local function cleanup()
          for _, object in ipairs(objects) do
-            print(object.type,object.x);
             if (object.x < -50) then
                objectIndex = indexOf(objects, object);
                table.remove(objects, objectIndex);
@@ -145,27 +150,29 @@ function scene:show(event)
       end
 
       local function spawnObject()
-         hornetOrLife = math.random(1, 2);
-         local spawnHeight = math.random(50, 450);
-         if (hornetOrLife == 1) then
-            object = display.newRect(600, spawnHeight, 45, 30);
-            object:setFillColor(1, 0, 0);
-            object.type = "hornet";
-         else
-            object = display.newCircle(600, spawnHeight, 15);
-            object.type = "bonus";
+         if (gameRunning == true) then
+            hornetOrLife = math.random(1, 2);
+            local spawnHeight = math.random(50, 450);
+            if (hornetOrLife == 1) then
+               object = display.newRect(600, spawnHeight, 45, 30);
+               object:setFillColor(1, 0, 0);
+               object.type = "hornet";
+            else
+               object = display.newCircle(600, spawnHeight, 15);
+               object.type = "bonus";
+            end
+
+            physics.addBody(object, "kinematic");
+            object.isSensor = true;
+            object:setLinearVelocity(-125, 0);
+
+            object:addEventListener("collision", collisionDetected)
+
+            spawned:insert(object);
+            table.insert(objects, object);
+
+            cleanup();
          end
-
-         physics.addBody(object, "kinematic");
-         object.isSensor = true;
-         object:setLinearVelocity(-125, 0);
-
-         object:addEventListener("collision", collisionDetected)
-
-         spawned:insert(object);
-         table.insert(objects, object);
-
-         cleanup();
       end
 
       timer.performWithDelay(
