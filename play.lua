@@ -8,7 +8,7 @@ local scene = composer.newScene()
 ---------------------------------------------------------------------------------
 
 -- local forward references should go here
-
+--
 ---------------------------------------------------------------------------------
 
 local spawned; --Group of spawned objects still in memory. Is removed from memory when scene is destroyed. 
