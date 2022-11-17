@@ -32,6 +32,29 @@ function scene:create(event)
       });
    end
 
+   -- Image Sheet information
+   local opt =
+   {
+      frames = {
+         { x = 36, y = 51, width = 212, height = 360}, -- 1, Orange Flower
+         { x = 265, y = 58, width = 212, height = 360}, -- 2, Purple Flower
+         { x = 503, y = 49, width = 212, height = 360}, -- 3, Pink Flower
+         { x = 800, y = 95, width = 85, height = 77}, -- 4, Honeycomb bonus
+         { x = 798, y = 238, width = 87, height = 74}, -- 5, Heart/life bonus
+         { x = 921, y = 37, width = 183, height = 122}, -- 6, Burt Frame 1
+         { x = 1107, y = 29, width = 183, height = 122}, -- 7, Burt Frame 2
+         { x = 1294, y = 37, width = 183, height = 122}, -- 8, Burt Frame 3
+         { x = 953, y = 253, width = 183, height = 179}, -- 9, Hornet Frame 1
+         { x = 1158, y = 229, width = 183, height = 179}, -- 10, Hornet Frame 2
+         { x = 1366, y = 224, width = 183, height = 179}, -- 11, Hornet Frame 3
+         { x = 45, y = 478, width = 655, height = 222}, -- 12, Grass
+      }
+   }
+   local sheet = graphics.newImageSheet( "Burt The Bee Sprites.png", opt);
+
+   -- Sprite animation information
+   -- TO DO
+
    local Burt = display.newRect(display.contentCenterX - 500, display.contentCenterY, 45, 30);
    Burt:setFillColor(1, 1, 0);
    sceneGroup:insert(Burt);
