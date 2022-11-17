@@ -33,33 +33,40 @@ function scene:create(event)
    end
 
    -- Image Sheet information
-   local opt =
+   opt =
    {
       frames = {
-         { x = 36, y = 51, width = 212, height = 360}, -- 1, Orange Flower
-         { x = 265, y = 58, width = 212, height = 360}, -- 2, Purple Flower
-         { x = 503, y = 49, width = 212, height = 360}, -- 3, Pink Flower
-         { x = 800, y = 95, width = 85, height = 77}, -- 4, Honeycomb bonus
-         { x = 798, y = 238, width = 87, height = 74}, -- 5, Heart/life bonus
-         { x = 921, y = 37, width = 183, height = 122}, -- 6, Burt Frame 1
-         { x = 1107, y = 29, width = 183, height = 122}, -- 7, Burt Frame 2
-         { x = 1294, y = 37, width = 183, height = 122}, -- 8, Burt Frame 3
-         { x = 953, y = 253, width = 183, height = 179}, -- 9, Hornet Frame 1
-         { x = 1158, y = 229, width = 183, height = 179}, -- 10, Hornet Frame 2
-         { x = 1366, y = 224, width = 183, height = 179}, -- 11, Hornet Frame 3
-         { x = 45, y = 478, width = 655, height = 222}, -- 12, Grass
+         { x = 21, y = 16, width = 111, height = 182}, -- 1, Orange Flower
+         { x = 137, y = 23, width = 111, height = 182}, -- 2, Purple Flower
+         { x = 255, y = 19, width = 111, height = 182}, -- 3, Pink Flower
+         { x = 406, y = 43, width = 41, height = 36}, -- 4, Honeycomb bonus
+         { x = 408, y = 113, width = 39, height = 36}, -- 5, Heart/life bonus
+         { x = 468, y = 15, width = 90, height = 58}, -- 6, Burt Frame 1
+         { x = 559, y = 11, width = 90, height = 58}, -- 7, Burt Frame 2
+         { x = 654, y = 16, width = 90, height = 58}, -- 8, Burt Frame 3
+         { x = 483, y = 110, width = 92, height = 91}, -- 9, Hornet Frame 1
+         { x = 587, y = 108, width = 92, height = 91}, -- 10, Hornet Frame 2
+         { x = 692, y = 105, width = 92, height = 91}, -- 11, Hornet Frame 3
+         { x = 30, y = 235, width = 322, height = 104}, -- 12, Grass
       }
    }
-   local sheet = graphics.newImageSheet( "Burt The Bee Sprites.png", opt);
+
+   sheet = graphics.newImageSheet( "Burt_The_Bee Sprites.png", opt);
 
    -- Sprite animation information
-   -- TO DO
+   sequenceData = {
+      {name="Burt",   frames={6, 7, 8},   time=900, loopCount=0},
+      {name="Hornet", frames={9, 10, 11}, time=900, loopCount=0},
+   }
 
-   local Burt = display.newRect(display.contentCenterX - 500, display.contentCenterY, 45, 30);
-   Burt:setFillColor(1, 1, 0);
+   --local Burt = display.newRect(display.contentCenterX - 500, display.contentCenterY, 45, 30);
+   --Burt:setFillColor(1, 1, 0);
+   local Burt = display.newSprite(sheet, sequenceData)
+   Burt:setSequence("Burt")
+   Burt:play()
    sceneGroup:insert(Burt);
 
-   physics.addBody(Burt, "dynamic", { bounce = -1 });
+   physics.addBody(Burt, "dynamic", {bounce = -1});
 
    local ceiling = display.newRect(display.contentCenterX, 0, 2000, 1);
    ceiling:setFillColor(0, 0, 0, 0);
@@ -133,7 +140,6 @@ function scene:show(event)
       display.setDefault("background", 0, 0.9, 1); --Set background to a skyblue color
       -- Called when the scene is still off screen (but is about to come on screen).
    elseif (phase == "did") then
-
       local hornetOrLife;
       local object;
 
