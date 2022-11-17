@@ -36,18 +36,18 @@ function scene:create(event)
    opt =
    {
       frames = {
-         { x = 21, y = 16, width = 111, height = 182}, -- 1, Orange Flower
-         { x = 137, y = 23, width = 111, height = 182}, -- 2, Purple Flower
-         { x = 255, y = 19, width = 111, height = 182}, -- 3, Pink Flower
-         { x = 406, y = 43, width = 41, height = 36}, -- 4, Honeycomb bonus
-         { x = 408, y = 113, width = 39, height = 36}, -- 5, Heart/life bonus
-         { x = 468, y = 15, width = 90, height = 58}, -- 6, Burt Frame 1
-         { x = 559, y = 11, width = 90, height = 58}, -- 7, Burt Frame 2
-         { x = 654, y = 16, width = 90, height = 58}, -- 8, Burt Frame 3
-         { x = 483, y = 110, width = 92, height = 91}, -- 9, Hornet Frame 1
-         { x = 587, y = 108, width = 92, height = 91}, -- 10, Hornet Frame 2
-         { x = 692, y = 105, width = 92, height = 91}, -- 11, Hornet Frame 3
-         { x = 30, y = 235, width = 322, height = 104}, -- 12, Grass
+         { x = 21,  y = 16,  width = 111, height = 182},  -- 1, Orange Flower
+         { x = 137, y = 23,  width = 111, height = 182},  -- 2, Purple Flower
+         { x = 255, y = 19,  width = 111, height = 182},  -- 3, Pink Flower
+         { x = 406, y = 43,  width = 41,  height = 36},   -- 4, Honeycomb bonus
+         { x = 408, y = 113, width = 39,  height = 36},   -- 5, Heart/life bonus
+         { x = 468, y = 15,  width = 90,  height = 58},   -- 6, Burt Frame 1
+         { x = 559, y = 11,  width = 90,  height = 58},   -- 7, Burt Frame 2
+         { x = 654, y = 16,  width = 90,  height = 58},   -- 8, Burt Frame 3
+         { x = 483, y = 110, width = 92,  height = 91},   -- 9, Hornet Frame 1
+         { x = 587, y = 108, width = 92,  height = 91},   -- 10, Hornet Frame 2
+         { x = 692, y = 105, width = 92,  height = 91},   -- 11, Hornet Frame 3
+         { x = 30,  y = 235, width = 322, height = 104},  -- 12, Grass
       }
    }
 
@@ -141,6 +141,7 @@ function scene:show(event)
       -- Called when the scene is still off screen (but is about to come on screen).
    elseif (phase == "did") then
       local hornetOrLife;
+      local bonusOrLife;
       local object;
 
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
@@ -158,6 +159,9 @@ function scene:show(event)
       local function collisionDetected(event)
          if (event.target.type == "hornet") then
             print("dead");
+         end
+         if (event.target.type == "life") then
+            print("extra life!");
          else
             print("bonus!")
          end
@@ -181,14 +185,29 @@ function scene:show(event)
       local function spawnObject()
          if (gameRunning == true) then
             hornetOrLife = math.random(1, 2);
+            bonusOrLife = math.random(1, 4);
             local spawnHeight = math.random(50, 450);
             if (hornetOrLife == 1) then
-               object = display.newRect(600, spawnHeight, 45, 30);
-               object:setFillColor(1, 0, 0);
+               object = display.newSprite(sheet, sequenceData)
+               object:setSequence("Hornet")
+               object.x = 600
+               object.y = spawnHeight
+               object.scaleX = 0.3
+               object.scaleY = 0.3
+               object:play()
                object.type = "hornet";
             else
-               object = display.newCircle(600, spawnHeight, 15);
-               object.type = "bonus";
+               if (bonusOrLife == 1) then
+                  object = display.newImage(sheet, 5)
+                  object.x = 600
+                  object.y = spawnHeight
+                  object.type = "life";
+               else 
+                  object = display.newImage(sheet, 4)                  
+                  object.x = 600
+                  object.y = spawnHeight
+                  object.type = "bonus";
+               end
             end
 
             physics.addBody(object, "kinematic");
