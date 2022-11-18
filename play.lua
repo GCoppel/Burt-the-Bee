@@ -1,5 +1,6 @@
 local composer = require("composer")
 local physics = require("physics")
+local Flowers = require("flowers")
 local scene = composer.newScene()
 
 
@@ -147,6 +148,10 @@ function scene:show(event)
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
       local objectIndex; --Location of target object in "objects" table
 
+
+      ---------------------------------------------------------------------
+      -- ENEMY AND BONUS GENERATION
+
       --Function to find the index of a value in a table:
       function indexOf(table, value)
          for index, val in ipairs(table) do
@@ -156,6 +161,7 @@ function scene:show(event)
          end
       end
 
+      --Function to determine what action needs carried out based on the object collided
       local function collisionDetected(event)
          if (event.target.type == "hornet") then
             print("dead");
@@ -182,11 +188,12 @@ function scene:show(event)
          end
       end
 
+      --Spawn an enemy or bonus item randomly
       local function spawnObject()
          if (gameRunning == true) then
             hornetOrLife = math.random(1, 2);
             bonusOrLife = math.random(1, 4);
-            local spawnHeight = math.random(50, 450);
+            local spawnHeight = math.random(50, 350);
             if (hornetOrLife == 1) then
                object = display.newSprite(sheet, sequenceData)
                object:setSequence("Hornet")
@@ -223,11 +230,29 @@ function scene:show(event)
          end
       end
 
+      -- Once we get distance/score working, I am thinking of basing the spawn on that with a cap of course
       timer.performWithDelay(
          2500 + math.random(1500),
          spawnObject,
          0
       )
+
+      ---------------------------------------------------------------------
+      -- FLOWER GENERATION
+      local function testGeneration()
+         if (gameRunning) then
+            local TestFlower = Flowers:new()
+            TestFlower:spawn();
+            TestFlower:move();
+
+            spawned:insert(TestFlower.shape);
+            table.insert(objects, TestFlower.shape);
+
+            cleanup();
+         end
+      end
+
+      timer.performWithDelay(3000, testGeneration, 0)
    end
 end
 
