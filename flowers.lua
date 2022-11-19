@@ -3,7 +3,7 @@
 --
 -----------------------------------------------------------------------------------------
 
-local Flower = {tag="flower", xPos=600, yPos=300, velocity = -100, mult = 1.25};
+local Flower = {tag="flower", xPos=0, yPos=0, velocity = 0, mult = 0.0};
 
 -- Constructor
 function Flower:new(o)
@@ -13,7 +13,7 @@ function Flower:new(o)
   	return o;
 end
 
---Used to spawn the flower on screen  as an
+--Used to spawn the flower on screen
 function Flower:spawn()
 	self.shape = display.newRect(self.xPos, self.yPos, 30, 90)
  	self.shape.tag = self.tag;

@@ -1,6 +1,8 @@
 local composer = require("composer")
 local physics = require("physics")
-local Flowers = require("flowers")
+local orangeFlowers = require("orangeFlowers")
+local pinkFlowers = require("pinkFlowers")
+local purpleFlowers = require("purpleFlowers")
 local scene = composer.newScene()
 
 
@@ -239,10 +241,21 @@ function scene:show(event)
 
       ---------------------------------------------------------------------
       -- FLOWER GENERATION
+      --physics.setDrawMode("hybrid")
       local function testGeneration()
          if (gameRunning) then
-            local TestFlower = Flowers:new()
-            TestFlower:spawn();
+            local randomFlower = math.random(1, 3)
+            local TestFlower;
+            if (randomFlower == 1) then
+               TestFlower = orangeFlowers:new()
+            end
+            if (randomFlower == 2) then
+               TestFlower = purpleFlowers:new()
+            end
+            if (randomFlower == 3) then
+               TestFlower = pinkFlowers:new()
+            end
+            TestFlower:spawn(sheet, randomFlower);
             TestFlower:move();
 
             spawned:insert(TestFlower.shape);
