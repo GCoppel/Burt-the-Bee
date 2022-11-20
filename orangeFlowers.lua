@@ -13,8 +13,8 @@ function orangeFlowers:spawn(imageSheet, frame)
 	self.shape = display.newImage(imageSheet, frame)
  	self.shape.tag = self.tag;
  	self.shape.x = self.xPos;
- 	self.shape.y = self.yPos + randomHeight;
- 	physics.addBody(self.shape, "kinematic"); 
+ 	self.shape.y = self.yPos - randomHeight;
+ 	physics.addBody(self.shape, "kinematic", {shape = {-50,-50, 50,-50, 0,50}}); 
 end
 
 --Used to add multiplier to points(?????)

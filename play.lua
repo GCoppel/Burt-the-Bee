@@ -7,6 +7,7 @@ local scene = composer.newScene()
 
 
 local spawned; --Group of spawned objects still in memory. Is removed from memory when scene is destroyed.
+local spawnedHornets = {}; --Table of all hornets that spawn
 
 local gameRunning;
 
@@ -22,18 +23,6 @@ function scene:create(event)
    physics.setGravity(0, 25);
 
    physics.pause();
-
-
-   --Pause:
-   local function Pause()
-      physics.pause();
-      timer.pauseAll();
-      composer.showOverlay("pause", {
-         effect = "fade",
-         time = 500,
-         isModal = true
-      });
-   end
 
    -- Image Sheet information
    opt =
@@ -60,10 +49,9 @@ function scene:create(event)
    sequenceData = {
       {name="Burt",   frames={6, 7, 8},   time=900, loopCount=0},
       {name="Hornet", frames={9, 10, 11}, time=900, loopCount=0},
+      {name="HornetPause", frames={9}, time=900, loopCount=0}
    }
 
-   --local Burt = display.newRect(display.contentCenterX - 500, display.contentCenterY, 45, 30);
-   --Burt:setFillColor(1, 1, 0);
    local Burt = display.newSprite(sheet, sequenceData)
    Burt:setSequence("Burt")
    Burt:play()
@@ -90,6 +78,24 @@ function scene:create(event)
    sceneGroup:insert(ground);
    physics.addBody(ground, "static");
    ground:addEventListener("collision", groundCollision)
+
+   --Pause:
+   --BUG TO FIX: Animations do not play again when unpaused
+        -- ADDITIONAL BUG: Sometimes unpausing does not bring back both timer functions
+   local function Pause()
+      physics.pause();
+      timer.pauseAll();
+      Burt:pause();
+      for _, object in ipairs(spawnedHornets) do
+            --object:pause()
+            object:setSequence("HornetPause")
+      end
+      composer.showOverlay("pause", {
+         effect = "fade",
+         time = 500,
+         isModal = true
+      });
+   end
 
    function flyUp()
       if (gameRunning == false) then -- Start game
@@ -141,6 +147,7 @@ function scene:show(event)
 
    if (phase == "will") then
       display.setDefault("background", 0, 0.9, 1); --Set background to a skyblue color
+      spawnedHornets = {}
       -- Called when the scene is still off screen (but is about to come on screen).
    elseif (phase == "did") then
       local hornetOrLife;
@@ -176,6 +183,10 @@ function scene:show(event)
          --Remove collision object from table of objects and then from memory
          objectIndex = indexOf(objects, event.target);
          table.remove(objects, objectIndex);
+         if (event.target.type == "hornet") then
+            objectIndex = indexOf(spawnedHornets, object);
+            table.remove(spawnedHornets, objectIndex);
+         end
          event.target:removeSelf();
       end
 
@@ -185,6 +196,10 @@ function scene:show(event)
             if (object.x < -50) then
                objectIndex = indexOf(objects, object);
                table.remove(objects, objectIndex);
+               if (object.type == "hornet") then
+                  objectIndex = indexOf(spawnedHornets, object);
+                  table.remove(spawnedHornets, objectIndex);
+               end
                object:removeSelf();
             end
          end
@@ -205,6 +220,7 @@ function scene:show(event)
                object.scaleY = 0.3
                object:play()
                object.type = "hornet";
+               table.insert(spawnedHornets, object)
             else
                if (bonusOrLife == 1) then
                   object = display.newImage(sheet, 5)

@@ -18,7 +18,7 @@ function Flower:spawn()
 	self.shape = display.newRect(self.xPos, self.yPos, 30, 90)
  	self.shape.tag = self.tag;
  	self.shape:setFillColor (1, 0, 0);
- 	physics.addBody(self.shape, "kinematic"); 
+ 	physics.addBody(self.shape, "kinematic", {shape = {-5,-5, 5,-5, 0,5}}); 
 end
 
 --Used to move flower across screen
