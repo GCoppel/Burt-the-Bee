@@ -52,6 +52,19 @@ function scene:create(event)
       {name="HornetPause", frames={9}, time=900, loopCount=0}
    }
 
+   local function deleteGrass(obj)
+      display.remove(obj)
+      obj = nil
+   end
+
+   local function createGrass()
+      local grass = display.newImage(sheet, 12)
+      grass.x = 800
+      grass.y = 300
+      sceneGroup:insert(grass)
+      transition.to(grass, {x = -600, time = 10000, onComplete = deleteGrass})
+   end
+
    local Burt = display.newSprite(sheet, sequenceData)
    Burt:setSequence("Burt")
    Burt:play()
@@ -80,14 +93,14 @@ function scene:create(event)
    ground:addEventListener("collision", groundCollision)
 
    --Pause:
-   --BUG TO FIX: Animations do not play again when unpaused
+   --BUG TO FIX: Animations and transitions do not play again when unpaused
         -- ADDITIONAL BUG: Sometimes unpausing does not bring back both timer functions
    local function Pause()
       physics.pause();
       timer.pauseAll();
+      transition.pauseAll();
       Burt:pause();
       for _, object in ipairs(spawnedHornets) do
-            --object:pause()
             object:setSequence("HornetPause")
       end
       composer.showOverlay("pause", {
@@ -121,6 +134,7 @@ function scene:create(event)
          local pauseButton = widget.newButton(options);
          sceneGroup:insert(pauseButton);
          transition.from(pauseButton, {alpha = 0, time = 1000}); --Fade in Pause Button
+         timer.performWithDelay(2265, createGrass, 0) --Start generating grass
       end
       Burt:setLinearVelocity(0, -250);
    end
@@ -180,6 +194,7 @@ function scene:show(event)
          else
             print("bonus!")
          end
+
          --Remove collision object from table of objects and then from memory
          objectIndex = indexOf(objects, event.target);
          table.remove(objects, objectIndex);
