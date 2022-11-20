@@ -10,6 +10,7 @@ local spawned; --Group of spawned objects still in memory. Is removed from memor
 local spawnedHornets = {}; --Table of all hornets that spawn
 
 local gameRunning;
+local lives = 1;
 
 -- "scene:create()"
 function scene:create(event)
@@ -84,6 +85,16 @@ function scene:create(event)
 
    local function groundCollision()
       print("ground hit, dead");
+      checkLives()
+   end
+
+   function checkLives()
+         if (lives == 1) then
+            lives = lives - 1
+            composer.gotoScene("gameOver")
+         else 
+            lives = lives - 1
+         end
    end
 
    local ground = display.newRect(display.contentCenterX, display.contentHeight, 1000, 10);
@@ -171,7 +182,6 @@ function scene:show(event)
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
       local objectIndex; --Location of target object in "objects" table
 
-
       ---------------------------------------------------------------------
       -- ENEMY AND BONUS GENERATION
 
@@ -188,9 +198,11 @@ function scene:show(event)
       local function collisionDetected(event)
          if (event.target.type == "hornet") then
             print("dead");
+            checkLives();
          end
          if (event.target.type == "life") then
             print("extra life!");
+            lives = lives + 1;
          else
             print("bonus!")
          end
