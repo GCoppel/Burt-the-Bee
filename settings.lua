@@ -16,6 +16,23 @@ function scene:create(event)
 
    local sceneGroup = self.view
 
+   -- Image Sheet information
+   local opt =
+   {
+      frames = {
+         { x = 9,  y = 14,  width = 43, height = 42},  -- 1, Unlocked
+         { x = 53, y = 12,  width = 43, height = 45}   -- 2, Locked
+      }
+   }
+
+   local sheet = graphics.newImageSheet("Trophy.png", opt);
+
+   --Set to just lock for now, but once JSON is up we can set the frame by seeing if the score is the right amount for trophy.
+   local trophy = display.newImage(sheet, 2)
+   trophy.x = 100
+   trophy.y = 275
+   sceneGroup:insert(trophy)
+
    --Back Button (return to main menu):
    local function goBack()
       composer.gotoScene("home");
