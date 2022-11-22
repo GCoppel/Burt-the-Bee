@@ -53,6 +53,23 @@ function scene:create(event)
       {name="HornetPause", frames={9}, time=900, loopCount=0}
    }
 
+   -- Image Sheet information
+   opt =
+   {
+      frames = {
+         { x = 57,  y = 226,  width = 2298, height = 1212},  -- beekeeper 
+      }
+   }
+
+   sheet2 = graphics.newImageSheet( "beekeeper.png", opt);
+
+   -- Sprite animation information
+   sequenceData = {
+      {name="Burt",   frames={6, 7, 8},   time=900, loopCount=0},
+      {name="Hornet", frames={9, 10, 11}, time=900, loopCount=0},
+      {name="HornetPause", frames={9}, time=900, loopCount=0}
+   }
+
    local function deleteGrass(obj)
       display.remove(obj)
       obj = nil
@@ -179,6 +196,36 @@ function scene:show(event)
       local bonusOrLife;
       local object;
 
+      local arm = display.newImage ( sheet2, 1 );
+      arm.x = 0; arm.y = 170;
+      arm.xScale = 0.10;
+      arm.yScale = 0.10;
+
+      -- timer display and funtion
+      -- create timer group
+        --
+      local timerGroup = display.newGroup();
+      local timevalue=0; 
+      local barH = 50; 
+      local bar = display.newRect(115, 50, 100, barH);
+      bar:setFillColor(0,0.9,1);
+      bar.strokeWidth = 2;
+      bar:setStrokeColor (1,1,0);
+      timerGroup:insert(bar);
+      local timeText = display.newText ("TIME:", 100, 50, native.systemFont, 20);
+      timeText:setFillColor (1,1,0);
+      timerGroup:insert(timeText);
+      local timeVal = display.newText (timevalue, timeText.x + timeText.width, 50, native.systemFont, 20); 
+      timeVal:setFillColor (1,1,0);
+      timerGroup:insert(timeVal);
+      local timerRef = timer.performWithDelay(
+      1000, 
+      function() 
+        timeVal.text = timeVal.text+1;
+      end, 
+      0 
+      ) 
+
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
       local objectIndex; --Location of target object in "objects" table
 
@@ -197,6 +244,10 @@ function scene:show(event)
       --Function to determine what action needs carried out based on the object collided
       local function collisionDetected(event)
          if (event.target.type == "hornet") then
+            print("dead");
+            checkLives();
+         end
+         if (event.target.type == "arm") then
             print("dead");
             checkLives();
          end
@@ -334,6 +385,7 @@ function scene:destroy(event)
 
    Runtime:removeEventListener("tap", flyUp);
    spawned:removeSelf();
+
 
    -- Called prior to the removal of scene's view ("sceneGroup").
    -- Insert code here to clean up the scene.
