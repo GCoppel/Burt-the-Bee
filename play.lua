@@ -218,13 +218,17 @@ function scene:show(event)
       local timeVal = display.newText (timevalue, timeText.x + timeText.width, 50, native.systemFont, 20); 
       timeVal:setFillColor (1,1,0);
       timerGroup:insert(timeVal);
+      local score = 0;
       local timerRef = timer.performWithDelay(
       1000, 
       function() 
         timeVal.text = timeVal.text+1;
+        score = score + 1
+        print ("Score: ", score)
       end, 
       0 
       ) 
+
 
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
       local objectIndex; --Location of target object in "objects" table
