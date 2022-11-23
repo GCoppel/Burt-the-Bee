@@ -108,6 +108,7 @@ function scene:create(event)
    function checkLives()
          if (lives == 1) then
             lives = lives - 1
+            --timerGroup:removeSelf()
             composer.gotoScene("gameOver")
          else 
             lives = lives - 1
@@ -196,14 +197,25 @@ function scene:show(event)
       local bonusOrLife;
       local object;
 
+      -- display arm 
       local arm = display.newImage ( sheet2, 1 );
       arm.x = 0; arm.y = 170;
       arm.xScale = 0.10;
       arm.yScale = 0.10;
 
+      -- move arm up and down 
+      local function moveArm()
+         transition.to(arm, {y=20})
+         if (arm.y == 20) then 
+            transition.to(arm, {y= 170}) 
+         end
+      end
+
+      -- timer to repeat movement of arm 
+      timer.performWithDelay(700, moveArm, 0)
+
       -- timer display and funtion
-      -- create timer group
-        --
+      -- create timer group to be removed at game over
       local timerGroup = display.newGroup();
       local timevalue=0; 
       local barH = 50; 
@@ -223,6 +235,7 @@ function scene:show(event)
       1000, 
       function() 
         timeVal.text = timeVal.text+1;
+        -- increase score by one every second with timer
         score = score + 1
         print ("Score: ", score)
       end, 
