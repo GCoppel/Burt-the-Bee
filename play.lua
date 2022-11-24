@@ -9,6 +9,7 @@ local scene = composer.newScene()
 local spawned; --Group of spawned objects still in memory. Is removed from memory when scene is destroyed.
 local spawnedHornets = {}; --Table of all hornets that spawn
 
+--Variables used to make the game work
 local gameRunning;
 local lives = 1;
 local score = 0;
