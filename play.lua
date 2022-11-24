@@ -190,7 +190,11 @@ function scene:show(event)
 
    if (phase == "will") then
       display.setDefault("background", 0, 0.9, 1); --Set background to a skyblue color
+
+      --RESET GAME VARIABLES
       spawnedHornets = {}
+      lives = 1
+      gameRunning = false
       -- Called when the scene is still off screen (but is about to come on screen).
    elseif (phase == "did") then
       local hornetOrLife;
@@ -390,6 +394,7 @@ function scene:hide(event)
       -- Called when the scene is on screen (but is about to go off screen).
       -- Insert code here to "pause" the scene.
       -- Example: stop timers, stop animation, stop audio, etc.
+      timer.cancelAll();
    elseif (phase == "did") then
       -- Called immediately after scene goes off screen.
    end
