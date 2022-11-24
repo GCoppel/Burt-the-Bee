@@ -10,6 +10,8 @@ local scene = composer.newScene()
 
 ---------------------------------------------------------------------------------
 
+local finalScoreVal = 0;
+
 -- "scene:create()"
 function scene:create(event)
 
@@ -19,6 +21,11 @@ function scene:create(event)
     local gameOver = display.newText("GAME OVER", display.contentCenterX, display.contentCenterY/2 + 50, native.systemFontBold, 50);
     gameOver:setFillColor(1,1,0);
     sceneGroup:insert(gameOver);
+
+    local scoreText = display.newText("Score: ", display.contentCenterX - 40, gameOver.y + 50, native.systemFontBold, 30)
+    sceneGroup:insert(scoreText)
+    scoreTextNum = display.newText(finalScoreVal, display.contentCenterX + 40, scoreText.y, native.systemFontBold, 30)
+    sceneGroup:insert(scoreTextNum)
 
     --SCENE TRANSITIONERS:
     local options -- used by buttons
@@ -37,7 +44,7 @@ function scene:create(event)
     --HOME BUTTON:
     options = {
         x = display.contentCenterX - 150,
-        y = display.contentCenterY + 50,
+        y = display.contentCenterY + 70,
         width = 100,
         height = 50,
         label = "Home",
@@ -58,7 +65,7 @@ function scene:create(event)
     --PLAY BUTTON:
     options = {
         x = display.contentCenterX + 150,
-        y = display.contentCenterY + 50,
+        y = display.contentCenterY + 70,
         width = 100,
         height = 50,
         label = "Play Again",
@@ -86,8 +93,11 @@ function scene:show(event)
 
     if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
+        params = event.params
+        finalScoreVal = params.finalScore
     elseif (phase == "did") then
         display.setDefault("background", 0,0,0); --Set background to a skyblue color
+        scoreTextNum.text = finalScoreVal
     end
 end
 

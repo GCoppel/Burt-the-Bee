@@ -11,6 +11,7 @@ local spawnedHornets = {}; --Table of all hornets that spawn
 
 local gameRunning;
 local lives = 1;
+local score = 0;
 
 -- "scene:create()"
 function scene:create(event)
@@ -109,7 +110,11 @@ function scene:create(event)
          if (lives == 1) then
             lives = lives - 1
             --timerGroup:removeSelf()
-            composer.gotoScene("gameOver")
+            composer.gotoScene("gameOver", {
+               params = {
+                  finalScore = score;
+               }
+            })
          else 
             lives = lives - 1
          end
@@ -193,8 +198,7 @@ function scene:show(event)
 
       --RESET GAME VARIABLES
       spawnedHornets = {}
-      lives = 1
-      gameRunning = false
+
       -- Called when the scene is still off screen (but is about to come on screen).
    elseif (phase == "did") then
       local hornetOrLife;
@@ -234,7 +238,7 @@ function scene:show(event)
       local timeVal = display.newText (timevalue, timeText.x + timeText.width, 50, native.systemFont, 20); 
       timeVal:setFillColor (1,1,0);
       timerGroup:insert(timeVal);
-      local score = 0;
+      --local score = 0;
       local timerRef = timer.performWithDelay(
       1000, 
       function() 
