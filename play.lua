@@ -29,7 +29,7 @@ function scene:create(event)
 
    physics.pause();
 
-   -- Image Sheet information
+   -- Image Sheets information
    opt =
    {
       frames = {
@@ -41,31 +41,38 @@ function scene:create(event)
          { x = 468, y = 15, width = 90, height = 58 }, -- 6, Burt Frame 1
          { x = 559, y = 11, width = 90, height = 58 }, -- 7, Burt Frame 2
          { x = 654, y = 16, width = 90, height = 58 }, -- 8, Burt Frame 3
-         { x = 483, y = 110, width = 92, height = 91 }, -- 9, Hornet Frame 1
-         { x = 587, y = 108, width = 92, height = 91 }, -- 10, Hornet Frame 2
-         { x = 692, y = 105, width = 92, height = 91 }, -- 11, Hornet Frame 3
-         { x = 30, y = 235, width = 322, height = 104 }, -- 12, Grass
+         { x = 30, y = 235, width = 322, height = 104 } -- 9, Grass
       }
    }
 
    sheet = graphics.newImageSheet("Burt_The_Bee Sprites.png", opt);
 
+   opt3 = {
+      frames = {
+         {x = 55, y = 5, width = 57, height = 58}, -- 1, Hornet Frame 1
+         {x = 117, y = 5, width = 57, height = 58}, -- 2, Hornet Frame 2
+         {x = 181, y = 3, width = 57, height = 58} -- 3, Hornet Frame 3
+      }
+   }
+
+   sheet3 = graphics.newImageSheet("Hornet_Sprites.png", opt3)
+
    -- Sprite animation information
    sequenceData = {
-      { name = "Burt", frames = { 6, 7, 8 }, time = 900, loopCount = 0 },
-      { name = "Hornet", frames = { 9, 10, 11 }, time = 900, loopCount = 0 },
-      { name = "HornetPause", frames = { 9 }, time = 900, loopCount = 0 }
+      { name = "Burt", frames = {6, 7, 8}, time = 900, loopCount = 0 },
+      { name = "Hornet", frames = {1, 2, 3}, sheet = sheet3, time = 900, loopCount = 0 },
+      { name = "HornetPause", frames = {1}, sheet = sheet3, time = 900, loopCount = 0 }
    }
 
    -- Image Sheet information
-   opt =
+   opt2 =
    {
       frames = {
          { x = 57, y = 226, width = 2298, height = 1212 }, -- beekeeper
       }
    }
 
-   sheet2 = graphics.newImageSheet("beekeeper.png", opt);
+   sheet2 = graphics.newImageSheet("beekeeper.png", opt2);
 
 
    local function deleteGrass(obj)
@@ -74,7 +81,7 @@ function scene:create(event)
    end
 
    local function createGrass()
-      local grass = display.newImage(sheet, 12)
+      local grass = display.newImage(sheet, 9)
       grass.x = 800
       grass.y = 300
       sceneGroup:insert(grass)
@@ -89,8 +96,8 @@ function scene:create(event)
    Burt:setSequence("Burt")
    Burt:play()
    sceneGroup:insert(Burt);
-
-   physics.addBody(Burt, "dynamic", { bounce = -1 });
+   local burtOutline = graphics.newOutline(2, sheet, 6)
+   physics.addBody(Burt, "dynamic", { bounce = -1, outline = burtOutline });
 
    local ceiling = display.newRect(display.contentCenterX, 0, 2000, 1);
    ceiling:setFillColor(0, 0, 0, 0);
@@ -320,20 +327,24 @@ function scene:show(event)
             hornetOrLife = math.random(1, 3); --1 in 3 chance of a bonus
             bonusOrLife = math.random(1, 4); --1 in 4 chance of extra life, bonus points otherwise
             local spawnHeight = math.random(50, 250);
+            local objectOutline
             if (hornetOrLife == 1) then --Spawn bonus
                if (bonusOrLife == 1) then
                   object = display.newImage(sheet, 5)
+                  objectOutline = graphics.newOutline(2, sheet, 5)
                   object.x = 600
                   object.y = spawnHeight
                   object.type = "life";
                else
                   object = display.newImage(sheet, 4)
+                  objectOutline = graphics.newOutline(2, sheet, 4)
                   object.x = 600
                   object.y = spawnHeight
                   object.type = "bonus";
                end
             else --Spawn hornet
                object = display.newSprite(sheet, sequenceData)
+               objectOutline = graphics.newOutline(2, sheet3, 1)
                object:setSequence("Hornet")
                object.x = 600
                object.y = spawnHeight
@@ -345,10 +356,10 @@ function scene:show(event)
             end
 
             --Make enemies and bonuses smaller and easier to avoid:
-            object.xScale = 0.75;
-            object.yScale = 0.75;
+            --object.xScale = 0.75;
+            --object.yScale = 0.75;
 
-            physics.addBody(object, "kinematic");
+            physics.addBody(object, "kinematic", {outline = objectOutline});
             object.isSensor = true;
             object:setLinearVelocity(-125, 0);
 
@@ -370,7 +381,7 @@ function scene:show(event)
 
       ---------------------------------------------------------------------
       -- FLOWER GENERATION
-      --physics.setDrawMode("hybrid")
+      physics.setDrawMode("hybrid")
       local function testGeneration()
          if (gameRunning) then
             local randomFlower = math.random(1, 3)
