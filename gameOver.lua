@@ -171,7 +171,7 @@ function scene:show(event)
         local readData;
         local writeFile;
 
-        local statsLocation = system.pathForFile("stats.json");
+        local statsLocation = system.pathForFile("stats.json", system.DocumentsDirectory);
         readFile = io.open(statsLocation, "r");
         readData = readFile:read("*a");
         io.close(readFile);
