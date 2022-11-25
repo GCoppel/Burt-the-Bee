@@ -12,9 +12,10 @@ local scene = composer.newScene()
 ---------------------------------------------------------------------------------
 
 local finalScoreVal = 0;
+local highestScoreVal = 0;
 local hasUnlockedTrophy1 = false
 local gameStats = {
-    highestScore = 0, --Test score
+    highestScore = 0,
     achievement1Unlocked = false
 }
 local lastSavedGameStats
@@ -25,7 +26,7 @@ function scene:create(event)
     local sceneGroup = self.view
 
     --TITLE:
-    local gameOver = display.newText("GAME OVER", display.contentCenterX, display.contentCenterY / 2 + 50,
+    local gameOver = display.newText("GAME OVER", display.contentCenterX, display.contentCenterY - 100,
         native.systemFontBold, 50);
     gameOver:setFillColor(1, 1, 0);
     sceneGroup:insert(gameOver);
@@ -35,6 +36,12 @@ function scene:create(event)
     sceneGroup:insert(scoreText)
     scoreTextNum = display.newText(finalScoreVal, display.contentCenterX + 40, scoreText.y, native.systemFontBold, 30)
     sceneGroup:insert(scoreTextNum)
+
+    --HIGHEST SCORE TEXT:
+    local highscoreText = display.newText("Highest Score: ", display.contentCenterX - 50, gameOver.y + 90, native.systemFontBold, 30)
+    sceneGroup:insert(highscoreText)
+    highscoreTextNum = display.newText(highestScoreVal, display.contentCenterX + 90, highscoreText.y, native.systemFontBold, 30)
+    sceneGroup:insert(highscoreTextNum)
 
     --SCENE TRANSITIONERS:
     local options -- used by buttons
@@ -91,64 +98,6 @@ function scene:create(event)
     local playButton = widget.newButton(options);
     playButton.buttonNum = 2;
     sceneGroup:insert(playButton);
-
-    -- --JSON stuff
-    -- --Function to retrieve JSON data
-    -- function getJSONData()
-    --     -- Path for the file to read
-    --     local path = system.pathForFile("stats.json")
-
-    --     -- Open the file handle
-    --     local file, errorString = io.open(path, "r")
-
-    --     if not file then
-    --         -- Error occurred; output the cause
-    --         print("File error: " .. errorString)
-    --     else
-    --         -- Read data from file
-    --         local contents = file:read("*a")
-    --         -- Decode JSON data into Lua table
-    --         lastSavedGameStats = json.decode(contents)
-    --         -- Close the file handle
-    --         io.close(file)
-    --     end
-    -- end
-
-    -- --Function to update the statistics (like high score)
-    -- --THIS FUNCTION IS CURRENTLY BROKEN
-    -- function updateGameStats()
-    --     -- Check to see if highest score has changed
-    --     local JSONscore = lastSavedGameStats.highestScore
-    --     if (score > JSONscore) then
-    --         gameStats.highestScore = score
-    --     end
-    --     if (score >= 100 or lastSavedGameStats.highestScore >= 100) then
-    --         gamesStats.achievement1Unlocked = true
-    --     end
-    -- end
-
-    -- --Function to re-write the new data to the JSON file
-    -- function setJSONData()
-    --     -- Path for the file to write
-    --     local path = system.pathForFile("stats.json")
-
-    --     -- Open the file handle
-    --     local file, errorString = io.open(path, "w")
-
-    --     if not file then
-    --         -- Error occurred; output the cause
-    --         print("File error: " .. errorString)
-    --         return false
-    --     else
-
-    --         -- Write encoded JSON data to file
-    --         file:write(json.encode(gameStats))
-
-    --         -- Close the file handle
-    --         io.close(file)
-    --         return true
-    --     end
-    -- end
 end
 
 -- "scene:show()"
@@ -162,11 +111,6 @@ function scene:show(event)
         params = event.params
         finalScoreVal = params.finalScore
 
-        --Update game stats with JSON
-        --getJSONData();
-        --updateGameStats(); THIS FUNCTION IS WHAT IS BREAKING SOLAR2D
-        --setJSONData();
-
         local readFile;
         local readData;
         local writeFile;
@@ -178,10 +122,16 @@ function scene:show(event)
         readFile = nil;
 
         local statsDeserialized = json.decode(readData);
+        highestScoreVal = statsDeserialized.highestScore
 
         if (statsDeserialized.highestScore < finalScoreVal) then --New high score! Overwrite current json stats to update
+            local achieve1unlocked = falses
+            if finalScoreVal >= 200 then achieve1unlocked = true end
+            
+            highestScoreVal = finalScoreVal
+
             local newStats = {
-                achievement1Unlocked = statsDeserialized.achievement1Unlocked,
+                achievement1Unlocked = achieve1unlocked,
                 highestScore = finalScoreVal
             }
             local newScore = json.encode(newStats);
@@ -195,6 +145,7 @@ function scene:show(event)
         composer.removeScene("play"); --Reset "play" scene
         display.setDefault("background", 0, 0, 0); --Set background to a skyblue color
         scoreTextNum.text = finalScoreVal
+        highscoreTextNum.text = highestScoreVal
     end
 end
 

@@ -1,7 +1,7 @@
 local composer = require("composer")
 local widget = require("widget")
+local json = require ("json")
 local scene = composer.newScene()
-local json = require ("json");
 
 ---------------------------------------------------------------------------------
 -- All code outside of the listener functions will only be executed ONCE
@@ -32,7 +32,7 @@ function scene:create(event)
    local readFile;
    local readData;
 
-   local statsLocation = system.pathForFile("stats.json");
+   local statsLocation = system.pathForFile("stats.json", system.DocumentsDirectory);
    readFile = io.open(statsLocation, "r");
    readData = readFile:read("*a");
    io.close(readFile);
@@ -40,16 +40,19 @@ function scene:create(event)
 
    local statsDeserialized = json.decode(readData); --Contains deserialized data
 
-   local trophy;
+   local trophy1;
 
    if(statsDeserialized.achievement1Unlocked) then
-      trophy = display.newImage(sheet, 1)
+      trophy1 = display.newImage(sheet, 1)
    else
-      trophy = display.newImage(sheet, 2)
+      trophy1 = display.newImage(sheet, 2)
    end
-   trophy.x = 100
-   trophy.y = 275
-   sceneGroup:insert(trophy)
+   trophy1.x = 50
+   trophy1.y = 275
+   sceneGroup:insert(trophy1)
+
+   local trophy1Label = display.newText("Score 25 points", trophy1.x + 100, trophy1.y, native.systemFontBold, 20)
+   sceneGroup:insert(trophy1Label)
 
    --Back Button (return to main menu):
    local function goBack()
