@@ -14,6 +14,8 @@ local gameRunning;
 local lives = 1;
 local score = 0;
 
+local distanceToKeeper = 100; --Starting gap of 100
+
 -- "scene:create()"
 function scene:create(event)
 
@@ -31,46 +33,40 @@ function scene:create(event)
    opt =
    {
       frames = {
-         { x = 21,  y = 16,  width = 111, height = 182},  -- 1, Orange Flower
-         { x = 137, y = 23,  width = 111, height = 182},  -- 2, Purple Flower
-         { x = 255, y = 19,  width = 111, height = 182},  -- 3, Pink Flower
-         { x = 406, y = 43,  width = 41,  height = 36},   -- 4, Honeycomb bonus
-         { x = 408, y = 113, width = 39,  height = 36},   -- 5, Heart/life bonus
-         { x = 468, y = 15,  width = 90,  height = 58},   -- 6, Burt Frame 1
-         { x = 559, y = 11,  width = 90,  height = 58},   -- 7, Burt Frame 2
-         { x = 654, y = 16,  width = 90,  height = 58},   -- 8, Burt Frame 3
-         { x = 483, y = 110, width = 92,  height = 91},   -- 9, Hornet Frame 1
-         { x = 587, y = 108, width = 92,  height = 91},   -- 10, Hornet Frame 2
-         { x = 692, y = 105, width = 92,  height = 91},   -- 11, Hornet Frame 3
-         { x = 30,  y = 235, width = 322, height = 104},  -- 12, Grass
+         { x = 21, y = 16, width = 111, height = 182 }, -- 1, Orange Flower
+         { x = 137, y = 23, width = 111, height = 182 }, -- 2, Purple Flower
+         { x = 255, y = 19, width = 111, height = 182 }, -- 3, Pink Flower
+         { x = 406, y = 43, width = 41, height = 36 }, -- 4, Honeycomb bonus
+         { x = 408, y = 113, width = 39, height = 36 }, -- 5, Heart/life bonus
+         { x = 468, y = 15, width = 90, height = 58 }, -- 6, Burt Frame 1
+         { x = 559, y = 11, width = 90, height = 58 }, -- 7, Burt Frame 2
+         { x = 654, y = 16, width = 90, height = 58 }, -- 8, Burt Frame 3
+         { x = 483, y = 110, width = 92, height = 91 }, -- 9, Hornet Frame 1
+         { x = 587, y = 108, width = 92, height = 91 }, -- 10, Hornet Frame 2
+         { x = 692, y = 105, width = 92, height = 91 }, -- 11, Hornet Frame 3
+         { x = 30, y = 235, width = 322, height = 104 }, -- 12, Grass
       }
    }
 
-   sheet = graphics.newImageSheet( "Burt_The_Bee Sprites.png", opt);
+   sheet = graphics.newImageSheet("Burt_The_Bee Sprites.png", opt);
 
    -- Sprite animation information
    sequenceData = {
-      {name="Burt",   frames={6, 7, 8},   time=900, loopCount=0},
-      {name="Hornet", frames={9, 10, 11}, time=900, loopCount=0},
-      {name="HornetPause", frames={9}, time=900, loopCount=0}
+      { name = "Burt", frames = { 6, 7, 8 }, time = 900, loopCount = 0 },
+      { name = "Hornet", frames = { 9, 10, 11 }, time = 900, loopCount = 0 },
+      { name = "HornetPause", frames = { 9 }, time = 900, loopCount = 0 }
    }
 
    -- Image Sheet information
    opt =
    {
       frames = {
-         { x = 57,  y = 226,  width = 2298, height = 1212},  -- beekeeper 
+         { x = 57, y = 226, width = 2298, height = 1212 }, -- beekeeper
       }
    }
 
-   sheet2 = graphics.newImageSheet( "beekeeper.png", opt);
+   sheet2 = graphics.newImageSheet("beekeeper.png", opt);
 
-   -- Sprite animation information
-   sequenceData = {
-      {name="Burt",   frames={6, 7, 8},   time=900, loopCount=0},
-      {name="Hornet", frames={9, 10, 11}, time=900, loopCount=0},
-      {name="HornetPause", frames={9}, time=900, loopCount=0}
-   }
 
    local function deleteGrass(obj)
       display.remove(obj)
@@ -82,15 +78,19 @@ function scene:create(event)
       grass.x = 800
       grass.y = 300
       sceneGroup:insert(grass)
-      transition.to(grass, {x = -600, time = 10000, onComplete = deleteGrass})
+      transition.to(grass, { x = -600, time = 10000, onComplete = deleteGrass })
    end
 
    local Burt = display.newSprite(sheet, sequenceData)
+   Burt.x = -display.contentWidth;
+   Burt.y = display.contentCenterY;
+   Burt.xScale = 0.75;
+   Burt.yScale = 0.75;
    Burt:setSequence("Burt")
    Burt:play()
    sceneGroup:insert(Burt);
 
-   physics.addBody(Burt, "dynamic", {bounce = -1});
+   physics.addBody(Burt, "dynamic", { bounce = -1 });
 
    local ceiling = display.newRect(display.contentCenterX, 0, 2000, 1);
    ceiling:setFillColor(0, 0, 0, 0);
@@ -99,8 +99,8 @@ function scene:create(event)
 
    local tapToStartText = display.newText(
       "Tap to Start", display.contentCenterX, display.contentCenterY, native.systemFont, 25);
-      tapToStartText:setFillColor(0,0,0, 0.5);
-      sceneGroup:insert(tapToStartText);
+   tapToStartText:setFillColor(0, 0, 0, 0.5);
+   sceneGroup:insert(tapToStartText);
 
    local function groundCollision()
       print("ground hit, dead");
@@ -108,17 +108,17 @@ function scene:create(event)
    end
 
    function checkLives()
-         if (lives == 1) then
-            lives = lives - 1
-            --timerGroup:removeSelf()
-            composer.gotoScene("gameOver", {
-               params = {
-                  finalScore = score;
-               }
-            })
-         else 
-            lives = lives - 1
-         end
+      if (lives == 1) then
+         lives = lives - 1
+         --timerGroup:removeSelf()
+         composer.gotoScene("gameOver", {
+            params = {
+               finalScore = score;
+            }
+         })
+      else
+         lives = lives - 1
+      end
    end
 
    local ground = display.newRect(display.contentCenterX, display.contentHeight, 1000, 10);
@@ -128,15 +128,14 @@ function scene:create(event)
    ground:addEventListener("collision", groundCollision)
 
    --Pause:
-   --BUG TO FIX: Animations and transitions do not play again when unpaused
-        -- ADDITIONAL BUG: Sometimes unpausing does not bring back both timer functions
+   -- BUG: Sometimes unpausing does not bring back both timer functions
    local function Pause()
       physics.pause();
       timer.pauseAll();
       transition.pauseAll();
       Burt:pause();
       for _, object in ipairs(spawnedHornets) do
-            object:setSequence("HornetPause")
+         object:setSequence("HornetPause")
       end
       composer.showOverlay("pause", {
          effect = "fade",
@@ -145,10 +144,40 @@ function scene:create(event)
       });
    end
 
+   -- timer display and funtion
+   -- create timer group to be removed at game over
+   local timerGroup = display.newGroup();
+   timerGroup.x = 250;
+   timerGroup.alpha = 0;
+   local barH = 50;
+   local bar = display.newRect(115, 50, 100, barH);
+   bar:setFillColor(0, 0, 0, 0.1); --Clear
+   bar.strokeWidth = 2;
+   bar:setStrokeColor(1, 1, 0);
+   timerGroup:insert(bar);
+   local timeText = display.newText("Score:", 100, 50, native.systemFont, 20);
+   timeText:setFillColor(1, 1, 0);
+   timerGroup:insert(timeText);
+   local timeVal = display.newText(score, timeText.x + timeText.width - 10, 50, native.systemFont, 20);
+   timeVal:setFillColor(1, 1, 0);
+   timerGroup:insert(timeVal);
+   sceneGroup:insert(timerGroup);
+
+   --Timer keeping track of score and beekeeper gap:
+   local updateEverySecond = timer.performWithDelay(
+      1000,
+      function()
+         -- increase score by one every second with timer:
+         score = score + 1;
+         timeVal.text = score;
+      end,
+      0
+   )
+
    function flyUp()
       if (gameRunning == false) then -- Start game
-         transition.to(tapToStartText, {alpha = 0, time = 500}); --Hide "Tap to Start" message
-         transition.to(Burt, {x = display.contentCenterX - 100, time = 5000, transition=easing.outExpo}); --Bring Burt on screen
+         transition.to(tapToStartText, { alpha = 0, time = 500 }); --Hide "Tap to Start" message
+         transition.to(Burt, { x = display.contentCenterX - 100, time = 5000, transition = easing.outExpo }); --Bring Burt on screen
          physics.start();
          gameRunning = true;
 
@@ -168,7 +197,8 @@ function scene:create(event)
          }
          local pauseButton = widget.newButton(options);
          sceneGroup:insert(pauseButton);
-         transition.from(pauseButton, {alpha = 0, time = 1000}); --Fade in Pause Button
+         transition.to(timerGroup, { alpha = 1, time = 1000 }); --Fade in Pause Button
+         transition.from(pauseButton, { alpha = 0, time = 1000 }); --Fade in Pause Button
          timer.performWithDelay(2265, createGrass, 0) --Start generating grass
       end
       Burt:setLinearVelocity(0, -250);
@@ -206,50 +236,25 @@ function scene:show(event)
       local bonusOrLife;
       local object;
 
-      -- display arm 
-      local arm = display.newImage ( sheet2, 1 );
-      arm.x = 0; arm.y = 170;
+      -- display arm
+      local arm = display.newImage(sheet2, 1);
+      arm.x = -10;
+      arm.y = 170;
       arm.xScale = 0.10;
       arm.yScale = 0.10;
+      arm.rotation = 20;
+      sceneGroup:insert(arm);
 
-      -- move arm up and down 
+      -- move arm up and down
       local function moveArm()
-         transition.to(arm, {y=20})
-         if (arm.y == 20) then 
-            transition.to(arm, {y= 170}) 
+         transition.to(arm, { y = 20 })
+         if (arm.y == 20) then
+            transition.to(arm, { y = 170 })
          end
       end
 
-      -- timer to repeat movement of arm 
+      -- timer to repeat movement of arm
       timer.performWithDelay(700, moveArm, 0)
-
-      -- timer display and funtion
-      -- create timer group to be removed at game over
-      local timerGroup = display.newGroup();
-      local timevalue=0; 
-      local barH = 50; 
-      local bar = display.newRect(115, 50, 100, barH);
-      bar:setFillColor(0,0.9,1);
-      bar.strokeWidth = 2;
-      bar:setStrokeColor (1,1,0);
-      timerGroup:insert(bar);
-      local timeText = display.newText ("TIME:", 100, 50, native.systemFont, 20);
-      timeText:setFillColor (1,1,0);
-      timerGroup:insert(timeText);
-      local timeVal = display.newText (timevalue, timeText.x + timeText.width, 50, native.systemFont, 20); 
-      timeVal:setFillColor (1,1,0);
-      timerGroup:insert(timeVal);
-      --local score = 0;
-      local timerRef = timer.performWithDelay(
-      1000, 
-      function() 
-        timeVal.text = timeVal.text+1;
-        -- increase score by one every second with timer
-        score = score + 1
-        print ("Score: ", score)
-      end, 
-      0 
-      ) 
 
 
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
@@ -281,7 +286,7 @@ function scene:show(event)
             print("extra life!");
             lives = lives + 1;
          else
-            print("bonus!")
+            score = score + 5; --Bonus collected, add 5 to score
          end
 
          --Remove collision object from table of objects and then from memory
@@ -311,11 +316,23 @@ function scene:show(event)
 
       --Spawn an enemy or bonus item randomly
       local function spawnObject()
-         if (gameRunning == true) then
-            hornetOrLife = math.random(1, 2);
-            bonusOrLife = math.random(1, 4);
-            local spawnHeight = math.random(50, 350);
-            if (hornetOrLife == 1) then
+         if (gameRunning == true) then --Only start spawning once game has begun
+            hornetOrLife = math.random(1, 3); --1 in 3 chance of a bonus
+            bonusOrLife = math.random(1, 4); --1 in 4 chance of extra life, bonus points otherwise
+            local spawnHeight = math.random(50, 250);
+            if (hornetOrLife == 1) then --Spawn bonus
+               if (bonusOrLife == 1) then
+                  object = display.newImage(sheet, 5)
+                  object.x = 600
+                  object.y = spawnHeight
+                  object.type = "life";
+               else
+                  object = display.newImage(sheet, 4)
+                  object.x = 600
+                  object.y = spawnHeight
+                  object.type = "bonus";
+               end
+            else --Spawn hornet
                object = display.newSprite(sheet, sequenceData)
                object:setSequence("Hornet")
                object.x = 600
@@ -325,19 +342,11 @@ function scene:show(event)
                object:play()
                object.type = "hornet";
                table.insert(spawnedHornets, object)
-            else
-               if (bonusOrLife == 1) then
-                  object = display.newImage(sheet, 5)
-                  object.x = 600
-                  object.y = spawnHeight
-                  object.type = "life";
-               else 
-                  object = display.newImage(sheet, 4)                  
-                  object.x = 600
-                  object.y = spawnHeight
-                  object.type = "bonus";
-               end
             end
+
+            --Make enemies and bonuses smaller and easier to avoid:
+            object.xScale = 0.75;
+            object.yScale = 0.75;
 
             physics.addBody(object, "kinematic");
             object.isSensor = true;

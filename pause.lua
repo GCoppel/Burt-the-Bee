@@ -45,16 +45,19 @@ function scene:create(event)
     sceneGroup:insert(pauseButton);
 
     --Unpause Label:
-    local unpauseLabel = display.newText("Paused", display.contentCenterX, display.contentCenterY - 25, native.systemFontBold, 50);
-    unpauseLabel:setFillColor(1,1,0);
+    local unpauseLabel = display.newText("Paused", display.contentCenterX, display.contentCenterY - 25,
+        native.systemFontBold, 50);
+    unpauseLabel:setFillColor(1, 1, 0);
     sceneGroup:insert(unpauseLabel);
 
     --Unpause:
     local function unpause()
         composer.hideOverlay("fade", 50)
         physics.start();
+        transition.resumeAll();
         timer.resumeAll();
     end
+
     options = {
         x = display.contentCenterX,
         y = display.contentCenterY + 50,
@@ -82,7 +85,7 @@ function scene:show(event)
     if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
     elseif (phase == "did") then
-        
+
     end
 end
 

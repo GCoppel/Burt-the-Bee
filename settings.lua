@@ -1,6 +1,7 @@
 local composer = require("composer")
 local widget = require("widget")
 local scene = composer.newScene()
+local json = require ("json");
 
 ---------------------------------------------------------------------------------
 -- All code outside of the listener functions will only be executed ONCE
@@ -27,8 +28,25 @@ function scene:create(event)
 
    local sheet = graphics.newImageSheet("Trophy.png", opt);
 
-   --Set to just lock for now, but once JSON is up we can set the frame by seeing if the score is the right amount for trophy.
-   local trophy = display.newImage(sheet, 2)
+   --Read in acheivements from Json file "stats.json":
+   local readFile;
+   local readData;
+
+   local statsLocation = system.pathForFile("stats.json");
+   readFile = io.open(statsLocation, "r");
+   readData = readFile:read("*a");
+   io.close(readFile);
+   readFile = nil;
+
+   local statsDeserialized = json.decode(readData); --Contains deserialized data
+
+   local trophy;
+
+   if(statsDeserialized.achievement1Unlocked) then
+      trophy = display.newImage(sheet, 1)
+   else
+      trophy = display.newImage(sheet, 2)
+   end
    trophy.x = 100
    trophy.y = 275
    sceneGroup:insert(trophy)
