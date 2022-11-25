@@ -36,43 +36,45 @@ function scene:create(event)
          { x = 21, y = 16, width = 111, height = 182 }, -- 1, Orange Flower
          { x = 137, y = 23, width = 111, height = 182 }, -- 2, Purple Flower
          { x = 255, y = 19, width = 111, height = 182 }, -- 3, Pink Flower
-         { x = 406, y = 43, width = 41, height = 36 }, -- 4, Honeycomb bonus
-         { x = 408, y = 113, width = 39, height = 36 }, -- 5, Heart/life bonus
-         { x = 468, y = 15, width = 90, height = 58 }, -- 6, Burt Frame 1
-         { x = 559, y = 11, width = 90, height = 58 }, -- 7, Burt Frame 2
-         { x = 654, y = 16, width = 90, height = 58 }, -- 8, Burt Frame 3
-         { x = 30, y = 235, width = 322, height = 104 } -- 9, Grass
+         { x = 30, y = 235, width = 322, height = 104 } -- 4, Grass
       }
    }
+   sheet = graphics.newImageSheet("Various Sprites.png", opt);
 
-   sheet = graphics.newImageSheet("Burt_The_Bee Sprites.png", opt);
-
-   opt3 = {
-      frames = {
-         {x = 55, y = 5, width = 57, height = 58}, -- 1, Hornet Frame 1
-         {x = 117, y = 5, width = 57, height = 58}, -- 2, Hornet Frame 2
-         {x = 181, y = 3, width = 57, height = 58} -- 3, Hornet Frame 3
-      }
-   }
-
-   sheet3 = graphics.newImageSheet("Hornet_Sprites.png", opt3)
-
-   -- Sprite animation information
-   sequenceData = {
-      { name = "Burt", frames = {6, 7, 8}, time = 900, loopCount = 0 },
-      { name = "Hornet", frames = {1, 2, 3}, sheet = sheet3, time = 900, loopCount = 0 },
-      { name = "HornetPause", frames = {1}, sheet = sheet3, time = 900, loopCount = 0 }
-   }
-
-   -- Image Sheet information
    opt2 =
    {
       frames = {
          { x = 57, y = 226, width = 2298, height = 1212 }, -- beekeeper
       }
    }
-
    sheet2 = graphics.newImageSheet("beekeeper.png", opt2);
+
+   opt3 = {
+      frames = {
+         {x = 55, y = 5, width = 57, height = 58}, -- 1, Hornet Frame 1
+         {x = 117, y = 5, width = 57, height = 58}, -- 2, Hornet Frame 2
+         {x = 181, y = 3, width = 57, height = 58}, -- 3, Hornet Frame 3
+         {x = 9, y = 9, width = 25, height = 21}, -- 4, Honeycomb bonus
+         {x = 7, y = 49, width = 27, height = 23} -- 5, Heart/life bonus   
+      }
+   }
+   sheet3 = graphics.newImageSheet("Hornet_Sprites.png", opt3)
+
+   opt4 = {
+      frames = {
+         {x = 11, y = 12, width = 53, height = 38}, -- 1, Burt Frame 1
+         {x = 63, y = 12, width = 52, height = 35}, -- 2, Burt Frame 2
+         {x = 116, y = 13, width = 54, height = 37} -- 3, Burt Frame 3
+      }
+   }
+   sheet4 = graphics.newImageSheet("Burt The Bee.png", opt4)
+
+   -- Sprite animation information
+   sequenceData = {
+      { name = "Burt", frames = {1, 2, 3}, sheet = sheet4, time = 900, loopCount = 0 },
+      { name = "Hornet", frames = {1, 2, 3}, sheet = sheet3, time = 900, loopCount = 0 },
+      { name = "HornetPause", frames = {1}, sheet = sheet3, time = 900, loopCount = 0 }
+   }
 
 
    local function deleteGrass(obj)
@@ -81,22 +83,20 @@ function scene:create(event)
    end
 
    local function createGrass()
-      local grass = display.newImage(sheet, 9)
+      local grass = display.newImage(sheet, 4)
       grass.x = 800
       grass.y = 300
       sceneGroup:insert(grass)
       transition.to(grass, { x = -600, time = 10000, onComplete = deleteGrass })
    end
 
-   local Burt = display.newSprite(sheet, sequenceData)
+   local Burt = display.newSprite(sheet4, sequenceData)
    Burt.x = -display.contentWidth;
    Burt.y = display.contentCenterY;
-   Burt.xScale = 0.75;
-   Burt.yScale = 0.75;
    Burt:setSequence("Burt")
    Burt:play()
    sceneGroup:insert(Burt);
-   local burtOutline = graphics.newOutline(2, sheet, 6)
+   local burtOutline = graphics.newOutline(2, sheet4, 1)
    physics.addBody(Burt, "dynamic", { bounce = -1, outline = burtOutline });
 
    local ceiling = display.newRect(display.contentCenterX, 0, 2000, 1);
@@ -330,14 +330,14 @@ function scene:show(event)
             local objectOutline
             if (hornetOrLife == 1) then --Spawn bonus
                if (bonusOrLife == 1) then
-                  object = display.newImage(sheet, 5)
-                  objectOutline = graphics.newOutline(2, sheet, 5)
+                  object = display.newImage(sheet3, 5)
+                  objectOutline = graphics.newOutline(2, sheet3, 5)
                   object.x = 600
                   object.y = spawnHeight
                   object.type = "life";
                else
-                  object = display.newImage(sheet, 4)
-                  objectOutline = graphics.newOutline(2, sheet, 4)
+                  object = display.newImage(sheet3, 4)
+                  objectOutline = graphics.newOutline(2, sheet3, 4)
                   object.x = 600
                   object.y = spawnHeight
                   object.type = "bonus";
@@ -381,7 +381,7 @@ function scene:show(event)
 
       ---------------------------------------------------------------------
       -- FLOWER GENERATION
-      physics.setDrawMode("hybrid")
+      --physics.setDrawMode("hybrid")
       local function testGeneration()
          if (gameRunning) then
             local randomFlower = math.random(1, 3)
