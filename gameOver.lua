@@ -122,18 +122,20 @@ function scene:show(event)
         readFile = nil;
 
         local statsDeserialized = json.decode(readData);
-        highestScoreVal = statsDeserialized.highestScore
+        highestScoreVal = statsDeserialized.highestScore; --Read in current highest score for onscreen output
 
         if (statsDeserialized.highestScore < finalScoreVal) then --New high score! Overwrite current json stats to update
-            local achieve1unlocked = falses
-            if finalScoreVal >= 200 then achieve1unlocked = true end
+            --local achieve1unlocked = false
+            if finalScoreVal >= 200 then achieve1unlocked = true end --Unlock new achievement
             
-            highestScoreVal = finalScoreVal
 
             local newStats = {
                 achievement1Unlocked = achieve1unlocked,
                 highestScore = finalScoreVal
             }
+
+            highestScoreVal = finalScoreVal; --Update highest score for onscreen output
+
             local newScore = json.encode(newStats);
             writeFile = io.open(statsLocation, "w");
             writeFile:write(newScore);
@@ -142,6 +144,7 @@ function scene:show(event)
         end
 
     elseif (phase == "did") then
+        audio.stop(); --Stop background jazz
         composer.removeScene("play"); --Reset "play" scene
         display.setDefault("background", 0, 0, 0); --Set background to a skyblue color
         scoreTextNum.text = finalScoreVal

@@ -23,6 +23,7 @@ function scene:create(event)
 
     --Back Button (return to main menu):
     local function goBack()
+        audio.stop(); --Stop background jazz
         composer.gotoScene("home");
         timer.cancelAll();
         composer.removeScene("play");

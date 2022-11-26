@@ -1,9 +1,17 @@
 local composer = require("composer")
 local physics = require("physics")
+local json = require("json");
 local orangeFlowers = require("orangeFlowers")
 local pinkFlowers = require("pinkFlowers")
 local purpleFlowers = require("purpleFlowers")
 local scene = composer.newScene()
+
+
+--Loading in sound effects and background music:
+local backgroundMusic = audio.loadStream("GameplayMusic.mp3");
+local bonusEffect = audio.loadSound("Bonus");
+local hitEffect = audio.loadSound("Hit");
+local extraLifeEffect = audio.loadSound("ExtraLife");
 
 
 local spawned; --Group of spawned objects still in memory. Is removed from memory when scene is destroyed.
@@ -15,6 +23,8 @@ local lives = 1;
 local score = 0;
 
 local distanceToKeeper = 100; --Starting gap of 100
+
+local settingsDeserialized; --Stores deserialized JSON data for audio settings
 
 -- "scene:create()"
 function scene:create(event)
@@ -51,30 +61,42 @@ function scene:create(event)
 
    opt3 = {
       frames = {
-         {x = 55, y = 5, width = 57, height = 58}, -- 1, Hornet Frame 1
-         {x = 117, y = 5, width = 57, height = 58}, -- 2, Hornet Frame 2
-         {x = 181, y = 3, width = 57, height = 58}, -- 3, Hornet Frame 3
-         {x = 9, y = 9, width = 25, height = 21}, -- 4, Honeycomb bonus
-         {x = 7, y = 49, width = 27, height = 23} -- 5, Heart/life bonus   
+         { x = 55, y = 5, width = 57, height = 58 }, -- 1, Hornet Frame 1
+         { x = 117, y = 5, width = 57, height = 58 }, -- 2, Hornet Frame 2
+         { x = 181, y = 3, width = 57, height = 58 }, -- 3, Hornet Frame 3
+         { x = 9, y = 9, width = 25, height = 21 }, -- 4, Honeycomb bonus
+         { x = 7, y = 49, width = 27, height = 23 } -- 5, Heart/life bonus
       }
    }
    sheet3 = graphics.newImageSheet("Hornet_Sprites.png", opt3)
 
    opt4 = {
       frames = {
-         {x = 11, y = 12, width = 53, height = 38}, -- 1, Burt Frame 1
-         {x = 63, y = 12, width = 52, height = 35}, -- 2, Burt Frame 2
-         {x = 116, y = 13, width = 54, height = 37} -- 3, Burt Frame 3
+         { x = 11, y = 12, width = 53, height = 38 }, -- 1, Burt Frame 1
+         { x = 63, y = 12, width = 52, height = 35 }, -- 2, Burt Frame 2
+         { x = 116, y = 13, width = 54, height = 37 } -- 3, Burt Frame 3
       }
    }
    sheet4 = graphics.newImageSheet("Burt The Bee.png", opt4)
 
    -- Sprite animation information
    sequenceData = {
-      { name = "Burt", frames = {1, 2, 3}, sheet = sheet4, time = 900, loopCount = 0 },
-      { name = "Hornet", frames = {1, 2, 3}, sheet = sheet3, time = 900, loopCount = 0 },
-      { name = "HornetPause", frames = {1}, sheet = sheet3, time = 900, loopCount = 0 }
+      { name = "Burt", frames = { 1, 2, 3 }, sheet = sheet4, time = 900, loopCount = 0 },
+      { name = "Hornet", frames = { 1, 2, 3 }, sheet = sheet3, time = 900, loopCount = 0 },
+      { name = "HornetPause", frames = { 1 }, sheet = sheet3, time = 900, loopCount = 0 }
    }
+
+   --Load in audio settings from JSON:
+   local readFile;
+   local readData;
+
+   local settingsLocation = system.pathForFile("settings.json", system.DocumentsDirectory);
+   readFile = io.open(settingsLocation, "r");
+   readData = readFile:read("*a");
+   io.close(readFile);
+   readFile = nil;
+
+   settingsDeserialized = json.decode(readData); --Stores deserialized JSON data
 
 
    local function deleteGrass(obj)
@@ -170,23 +192,17 @@ function scene:create(event)
    timerGroup:insert(timeVal);
    sceneGroup:insert(timerGroup);
 
-   --Timer keeping track of score and beekeeper gap:
-   local updateEverySecond = timer.performWithDelay(
-      1000,
-      function()
-         -- increase score by one every second with timer:
-         score = score + 1;
-         timeVal.text = score;
-      end,
-      0
-   )
-
    function flyUp()
-      if (gameRunning == false) then -- Start game
+      if (gameRunning == false) then -- Start game (only runs once)
          transition.to(tapToStartText, { alpha = 0, time = 500 }); --Hide "Tap to Start" message
          transition.to(Burt, { x = display.contentCenterX - 100, time = 5000, transition = easing.outExpo }); --Bring Burt on screen
          physics.start();
          gameRunning = true;
+
+         --Start background music:
+         if (settingsDeserialized.enableMusic == true) then
+            audio.play(backgroundMusic, { loopCount = -1 });
+         end
 
          --Add Pause Button:
          local options = {
@@ -207,6 +223,17 @@ function scene:create(event)
          transition.to(timerGroup, { alpha = 1, time = 1000 }); --Fade in Pause Button
          transition.from(pauseButton, { alpha = 0, time = 1000 }); --Fade in Pause Button
          timer.performWithDelay(2265, createGrass, 0) --Start generating grass
+
+         --Timer keeping track of score and beekeeper gap:
+         local updateEverySecond = timer.performWithDelay(
+            1000,
+            function()
+               -- increase score by one every second with timer:
+               score = score + 1;
+               timeVal.text = score;
+            end,
+            0
+         )
       end
       Burt:setLinearVelocity(0, -250);
    end
@@ -282,17 +309,16 @@ function scene:show(event)
       --Function to determine what action needs carried out based on the object collided
       local function collisionDetected(event)
          if (event.target.type == "hornet") then
-            print("dead");
+            if (settingsDeserialized.enableEffects == true) then audio.play(hitEffect); end
             checkLives();
-         end
-         if (event.target.type == "arm") then
-            print("dead");
+         elseif (event.target.type == "arm") then
             checkLives();
-         end
-         if (event.target.type == "life") then
-            print("extra life!");
+
+         elseif (event.target.type == "life") then
+            if (settingsDeserialized.enableEffects == true) then audio.play(extraLifeEffect); end
             lives = lives + 1;
-         else
+         else --Bonus honeycomb
+            if (settingsDeserialized.enableEffects == true) then audio.play(bonusEffect); end
             score = score + 5; --Bonus collected, add 5 to score
          end
 
@@ -359,7 +385,7 @@ function scene:show(event)
             --object.xScale = 0.75;
             --object.yScale = 0.75;
 
-            physics.addBody(object, "kinematic", {outline = objectOutline});
+            physics.addBody(object, "kinematic", { outline = objectOutline });
             object.isSensor = true;
             object:setLinearVelocity(-125, 0);
 
@@ -381,7 +407,6 @@ function scene:show(event)
 
       ---------------------------------------------------------------------
       -- FLOWER GENERATION
-      --physics.setDrawMode("hybrid")
       local function testGeneration()
          if (gameRunning) then
             local randomFlower = math.random(1, 3)

@@ -80,16 +80,57 @@ function scene:create(event)
    settingsHeader:setFillColor(1, 1, 0);
    sceneGroup:insert(settingsHeader);
 
+   --Load in JSON file for audio data:
+   local readFile;
+   local readData;
+   local writeFile;
+
+   local settingsLocation = system.pathForFile("settings.json", system.DocumentsDirectory);
+   readFile = io.open(settingsLocation, "r");
+   readData = readFile:read("*a");
+   io.close(readFile);
+   readFile = nil;
+
+   local settingsDeserialized = json.decode(readData);
+
+   local musicOn = settingsDeserialized.enableMusic;
+   local effectsOn = settingsDeserialized.enableEffects;
+
    --Checkbox Functions:
    local function toggleMusic()
+      musicOn = not musicOn;
+            --Write new audio data to JSON file:
+            local settingsLocation = system.pathForFile('settings.json', system.DocumentsDirectory);
+            local newSettings = {
+               enableMusic = musicOn,
+               enableEffects = effectsOn
+            }
+            newSettings = json.encode(newSettings);
+            writeFile = io.open(settingsLocation, "w");
+            writeFile:write(newSettings);
+            io.close(writeFile);
+            writeFile = nil;
    end
    local function toggleSoundEffects()
+      effectsOn = not effectsOn;
+      --Write new audio data to JSON file:
+      local settingsLocation = system.pathForFile('settings.json', system.DocumentsDirectory);
+      local newSettings = {
+         enableMusic = musicOn,
+         enableEffects = effectsOn
+      }
+      newSettings = json.encode(newSettings);
+      writeFile = io.open(settingsLocation, "w");
+      writeFile:write(newSettings);
+      io.close(writeFile);
+      writeFile = nil;
    end
 
    --Background Music Checkbox:
    local musicCheckbox = widget.newSwitch({
       x = display.contentCenterX - 100,
       y = display.contentCenterY,
+      initialSwitchState = musicOn,
       style = "checkbox",
       onPress = toggleMusic
    })
@@ -99,6 +140,7 @@ function scene:create(event)
    local soundEffectCheckbox = widget.newSwitch({
       x = display.contentCenterX - 100,
       y = display.contentCenterY + 50,
+      initialSwitchState = effectsOn,
       style = "checkbox",
       onPress = toggleSoundEffects
    })
@@ -139,7 +181,7 @@ function scene:hide(event)
       -- Insert code here to "pause" the scene.
       -- Example: stop timers, stop animation, stop audio, etc.
    elseif (phase == "did") then
-      -- Called immediately after scene goes off screen.
+      composer.removeScene("settings"); --Destroy the current scene after returnign to main menu
    end
 end
 
