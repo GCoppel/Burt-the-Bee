@@ -39,9 +39,11 @@ function scene:create(event)
    readFile = nil;
 
    local statsDeserialized = json.decode(readData); --Contains deserialized data
+   print(statsDeserialized.highestScore)
+   print(statsDeserialized.achievement1Unlocked)
 
+   -- TROPHY 1: Score at least 25 points
    local trophy1;
-
    if(statsDeserialized.achievement1Unlocked) then
       trophy1 = display.newImage(sheet, 1)
    else
@@ -51,8 +53,36 @@ function scene:create(event)
    trophy1.y = 275
    sceneGroup:insert(trophy1)
 
-   local trophy1Label = display.newText("Score 25 points", trophy1.x + 100, trophy1.y, native.systemFontBold, 20)
+   local trophy1Label = display.newText("Score 25 points", trophy1.x, trophy1.y + 30, native.systemFontBold, 10)
    sceneGroup:insert(trophy1Label)
+
+   -- TROPHY 2: Score at least 100 points
+   local trophy2;
+   if(statsDeserialized.achievement2Unlocked) then
+      trophy2 = display.newImage(sheet, 1)
+   else
+      trophy2 = display.newImage(sheet, 2)
+   end
+   trophy2.x = 200
+   trophy2.y = 275
+   sceneGroup:insert(trophy2)
+
+   local trophy2Label = display.newText("Score 100 points", trophy2.x, trophy2.y + 30, native.systemFontBold, 10)
+   sceneGroup:insert(trophy2Label)
+
+   -- TROPHY 3: Score at least 250 points
+   local trophy3;
+   if(statsDeserialized.achievement3Unlocked) then
+      trophy3 = display.newImage(sheet, 1)
+   else
+      trophy3 = display.newImage(sheet, 2)
+   end
+   trophy3.x = 350
+   trophy3.y = 275
+   sceneGroup:insert(trophy3)
+
+   local trophy3Label = display.newText("Score 250 points", trophy3.x, trophy3.y + 30, native.systemFontBold, 10)
+   sceneGroup:insert(trophy3Label)
 
    --Back Button (return to main menu):
    local function goBack()

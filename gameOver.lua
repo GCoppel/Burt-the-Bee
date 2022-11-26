@@ -13,7 +13,7 @@ local scene = composer.newScene()
 
 local finalScoreVal = 0;
 local highestScoreVal = 0;
-local hasUnlockedTrophy1 = false
+--local hasUnlockedTrophy1 = false
 local gameStats = {
     highestScore = 0,
     achievement1Unlocked = false
@@ -124,13 +124,19 @@ function scene:show(event)
         local statsDeserialized = json.decode(readData);
         highestScoreVal = statsDeserialized.highestScore; --Read in current highest score for onscreen output
 
+        local achieve1unlocked = false -- Score at least 25 points
+        local achieve2unlocked = false -- Score at least 100 points
+        local achieve3unlocked = false -- Score at least 250 points
+
         if (statsDeserialized.highestScore < finalScoreVal) then --New high score! Overwrite current json stats to update
-            --local achieve1unlocked = false
-            if finalScoreVal >= 200 then achieve1unlocked = true end --Unlock new achievement
-            
+            if finalScoreVal >= 25 then achieve1unlocked = true end --Unlock new achievement
+            if finalScoreVal >= 100 then achieve2unlocked = true end --Unlock new achievement
+            if finalScoreVal >= 250 then achieve3unlocked = true end --Unlock new achievement
 
             local newStats = {
                 achievement1Unlocked = achieve1unlocked,
+                achievement2Unlocked = achieve2unlocked,
+                achievement3Unlocked = achieve3unlocked,
                 highestScore = finalScoreVal
             }
 
@@ -141,6 +147,25 @@ function scene:show(event)
             writeFile:write(newScore);
             io.close(writeFile);
             writeFile = nil;
+        else
+            if statsDeserialized.highestScore >= 25 then achieve1unlocked = true end --Unlock new achievement
+            if statsDeserialized.highestScore >= 100 then achieve2unlocked = true end --Unlock new achievement
+            if statsDeserialized.highestScore >= 250 then achieve3unlocked = true end --Unlock new achievement
+
+            local newStats = {
+                achievement1Unlocked = achieve1unlocked,
+                achievement2Unlocked = achieve2unlocked,
+                achievement3Unlocked = achieve3unlocked,
+                highestScore = statsDeserialized.highestScore
+            }
+
+            --highestScoreVal = finalScoreVal; --Update highest score for onscreen output
+
+            local newScore = json.encode(newStats);
+            writeFile = io.open(statsLocation, "w");
+            writeFile:write(newScore);
+            io.close(writeFile);
+            writeFile = nil;    
         end
 
     elseif (phase == "did") then
