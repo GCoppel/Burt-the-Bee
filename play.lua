@@ -408,7 +408,6 @@ function scene:show(event)
 
       ---------------------------------------------------------------------
       -- FLOWER GENERATION
-      physics.setDrawMode("hybrid")
       local function flowerCollisionDetected(event)
          if (event.phase == "began") then
             multiplier = event.target.mult
