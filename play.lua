@@ -23,8 +23,6 @@ local lives = 1;
 local score = 0;
 local multiplier = 1;
 
-local distanceToKeeper = 100; --Starting gap of 100
-
 local settingsDeserialized; --Stores deserialized JSON data for audio settings
 
 -- "scene:create()"
@@ -55,7 +53,7 @@ function scene:create(event)
    opt2 =
    {
       frames = {
-         { x = 57, y = 226, width = 2298, height = 1212 }, -- beekeeper
+         { x = 0, y = 0, width = 326, height = 170 }, -- beekeeper
       }
    }
    sheet2 = graphics.newImageSheet("beekeeper.png", opt2);
@@ -114,7 +112,7 @@ function scene:create(event)
    end
 
    Burt = display.newSprite(sheet4, sequenceData)
-   Burt.x = -display.contentWidth;
+   Burt.x = -display.contentWidth + 500;
    Burt.y = display.contentCenterY;
    Burt:setSequence("Burt")
    Burt:play()
@@ -225,7 +223,7 @@ function scene:create(event)
          transition.from(pauseButton, { alpha = 0, time = 1000 }); --Fade in Pause Button
          timer.performWithDelay(2265, createGrass, 0) --Start generating grass
 
-         --Timer keeping track of score and beekeeper gap:
+         --Timer keeping track of score:
          local updateEverySecond = timer.performWithDelay(
             1000,
             function()
@@ -236,7 +234,7 @@ function scene:create(event)
             0
          )
       end
-      Burt:setLinearVelocity(0, -250);
+      Burt:setLinearVelocity(10, -250);
    end
 
    Runtime:addEventListener("tap", flyUp);
@@ -271,13 +269,18 @@ function scene:show(event)
       local bonusOrLife;
       local object;
 
+      local function armCollision()
+         composer.gotoScene("gameOver");
+      end
+
       -- display arm
       local arm = display.newImage(sheet2, 1);
-      arm.x = -10;
+      arm.x = -1000;
       arm.y = 170;
-      arm.xScale = 0.10;
-      arm.yScale = 0.10;
       arm.rotation = 20;
+      physics.addBody(arm, "static");
+      arm.isSensor = true;
+      arm:addEventListener("collision", checkLives);
       sceneGroup:insert(arm);
 
       -- move arm up and down
@@ -288,8 +291,10 @@ function scene:show(event)
          end
       end
 
+      transition.to(arm, {time=5000, x = -160, onComplete=timer.performWithDelay(700,moveArm,0)});
+
       -- timer to repeat movement of arm
-      timer.performWithDelay(700, moveArm, 0)
+      --timer.performWithDelay(700, moveArm, 0)
 
 
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
@@ -411,9 +416,13 @@ function scene:show(event)
       local function flowerCollisionDetected(event)
          if (event.phase == "began") then
             multiplier = event.target.mult
+            local xv, yv = event.target.getLinearVelocity;
+            Burt:setLinearVelocity(-40,0);
          end
          if (event.phase == "ended") then
             multiplier = 1
+            local xv, yv = Burt.getLinearVelocity;
+            Burt:setLinearVelocity(10,yv);
          end
       end
 

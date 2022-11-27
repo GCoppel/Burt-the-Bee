@@ -38,9 +38,11 @@ function scene:create(event)
     sceneGroup:insert(scoreTextNum)
 
     --HIGHEST SCORE TEXT:
-    local highscoreText = display.newText("Highest Score: ", display.contentCenterX - 50, gameOver.y + 90, native.systemFontBold, 30)
+    local highscoreText = display.newText("Highest Score: ", display.contentCenterX - 50, gameOver.y + 90,
+        native.systemFontBold, 30)
     sceneGroup:insert(highscoreText)
-    highscoreTextNum = display.newText(highestScoreVal, display.contentCenterX + 90, highscoreText.y, native.systemFontBold, 30)
+    highscoreTextNum = display.newText(highestScoreVal, display.contentCenterX + 90, highscoreText.y,
+        native.systemFontBold, 30)
     sceneGroup:insert(highscoreTextNum)
 
     --SCENE TRANSITIONERS:
@@ -165,11 +167,14 @@ function scene:show(event)
             writeFile = io.open(statsLocation, "w");
             writeFile:write(newScore);
             io.close(writeFile);
-            writeFile = nil;    
+            writeFile = nil;
         end
 
     elseif (phase == "did") then
         audio.stop(); --Stop background jazz
+        --Play hit sound effect:
+        local hitEffect = audio.loadSound("Hit");
+        audio.play(hitEffect);
         composer.removeScene("play"); --Reset "play" scene
         display.setDefault("background", 0, 0, 0); --Set background to a skyblue color
         scoreTextNum.text = finalScoreVal
