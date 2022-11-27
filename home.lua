@@ -15,8 +15,18 @@ function scene:create(event)
 
     local sceneGroup = self.view
 
+    --BACKGROUND:
+    local menuBG = display.newImage("Menu_BG.png")
+    menuBG.x = display.contentCenterX
+    menuBG.y = display.contentCenterY
+    menuBG.xScale = 1.5
+    menuBG.yScale = 1.5
+    menuBG.xAnchor = 0.5
+    menuBG.yAnchor = 0.5
+    sceneGroup:insert(menuBG)
+
     --TITLE:
-    local burtTheBeeTitle = display.newText("Burt the Bee", display.contentCenterX, display.contentCenterY/2 + 50, native.systemFontBold, 50);
+    local burtTheBeeTitle = display.newText("Burt the Bee", display.contentCenterX + 110, display.contentCenterY/2 + 30, native.systemFontBold, 50);
     burtTheBeeTitle:setFillColor(1,1,0);
     sceneGroup:insert(burtTheBeeTitle);
 
@@ -38,7 +48,7 @@ function scene:create(event)
 
     --SETTINGS BUTTON:
     options = {
-        x = display.contentCenterX - 150,
+        x = display.contentCenterX - 20,
         y = display.contentCenterY + 50,
         width = 100,
         height = 50,
@@ -59,7 +69,7 @@ function scene:create(event)
 
     --CREDITS BUTTON:
     options = {
-        x = display.contentCenterX,
+        x = display.contentCenterX + 120,
         y = display.contentCenterY + 50,
         width = 100,
         height = 50,
@@ -80,7 +90,7 @@ function scene:create(event)
 
     --PLAY BUTTON:
     options = {
-        x = display.contentCenterX + 150,
+        x = display.contentCenterX + 260,
         y = display.contentCenterY + 50,
         width = 100,
         height = 50,

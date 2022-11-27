@@ -49,7 +49,7 @@ function scene:create(event)
    else
       trophy1 = display.newImage(sheet, 2)
    end
-   trophy1.x = 50
+   trophy1.x = display.contentCenterX - 150
    trophy1.y = 275
    sceneGroup:insert(trophy1)
 
@@ -63,7 +63,7 @@ function scene:create(event)
    else
       trophy2 = display.newImage(sheet, 2)
    end
-   trophy2.x = 200
+   trophy2.x = display.contentCenterX
    trophy2.y = 275
    sceneGroup:insert(trophy2)
 
@@ -77,7 +77,7 @@ function scene:create(event)
    else
       trophy3 = display.newImage(sheet, 2)
    end
-   trophy3.x = 350
+   trophy3.x = display.contentCenterX + 150
    trophy3.y = 275
    sceneGroup:insert(trophy3)
 
