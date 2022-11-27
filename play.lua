@@ -21,6 +21,7 @@ local spawnedHornets = {}; --Table of all hornets that spawn
 local gameRunning;
 local lives = 1;
 local score = 0;
+local multiplier = 1;
 
 local distanceToKeeper = 100; --Starting gap of 100
 
@@ -112,14 +113,14 @@ function scene:create(event)
       transition.to(grass, { x = -600, time = 10000, onComplete = deleteGrass })
    end
 
-   local Burt = display.newSprite(sheet4, sequenceData)
+   Burt = display.newSprite(sheet4, sequenceData)
    Burt.x = -display.contentWidth;
    Burt.y = display.contentCenterY;
    Burt:setSequence("Burt")
    Burt:play()
    sceneGroup:insert(Burt);
    local burtOutline = graphics.newOutline(2, sheet4, 1)
-   physics.addBody(Burt, "dynamic", { bounce = -1, outline = burtOutline });
+   physics.addBody(Burt, "dynamic", {outline = burtOutline})
 
    local ceiling = display.newRect(display.contentCenterX, 0, 2000, 1);
    ceiling:setFillColor(0, 0, 0, 0);
@@ -229,7 +230,7 @@ function scene:create(event)
             1000,
             function()
                -- increase score by one every second with timer:
-               score = score + 1;
+               score = score + (1 * multiplier);
                timeVal.text = score;
             end,
             0
@@ -407,30 +408,41 @@ function scene:show(event)
 
       ---------------------------------------------------------------------
       -- FLOWER GENERATION
-      local function testGeneration()
+      physics.setDrawMode("hybrid")
+      local function flowerCollisionDetected(event)
+         if (event.phase == "began") then
+            multiplier = event.target.mult
+         end
+         if (event.phase == "ended") then
+            multiplier = 1
+         end
+      end
+
+      local function flowerGeneration()
          if (gameRunning) then
             local randomFlower = math.random(1, 3)
-            local TestFlower;
+            local objFlower;
             if (randomFlower == 1) then
-               TestFlower = orangeFlowers:new()
+               objFlower = orangeFlowers:new()
             end
             if (randomFlower == 2) then
-               TestFlower = purpleFlowers:new()
+               objFlower = purpleFlowers:new()
             end
             if (randomFlower == 3) then
-               TestFlower = pinkFlowers:new()
+               objFlower = pinkFlowers:new()
             end
-            TestFlower:spawn(sheet, randomFlower);
-            TestFlower:move();
+            objFlower:spawn(sheet, randomFlower);
+            objFlower.shape:addEventListener("collision", flowerCollisionDetected)
+            objFlower:move();
 
-            spawned:insert(TestFlower.shape);
-            table.insert(objects, TestFlower.shape);
+            spawned:insert(objFlower.shape);
+            table.insert(objects, objFlower.shape);
 
             cleanup();
          end
       end
 
-      timer.performWithDelay(3000, testGeneration, 0)
+      timer.performWithDelay(3000, flowerGeneration, 0)
    end
 end
 

@@ -5,7 +5,7 @@
 
 local Flowers = require("flowers")
 
-local orangeFlowers = Flowers:new({xPos=600, yPos=300, velocity = -100, mult = 1.25})
+local orangeFlowers = Flowers:new({xPos=600, yPos=300, velocity = -100, mult = 2})
 
 --Used to spawn an orange flower on screen
 function orangeFlowers:spawn(imageSheet, frame)
@@ -14,12 +14,8 @@ function orangeFlowers:spawn(imageSheet, frame)
  	self.shape.tag = self.tag;
  	self.shape.x = self.xPos;
  	self.shape.y = self.yPos - randomHeight;
- 	physics.addBody(self.shape, "kinematic", {shape = {-50,-50, 50,-50, 0,50}}); 
-end
-
---Used to add multiplier to points(?????)
-function orangeFlowers:multiplyPoints() 
-	multiplier = self.mult
+ 	self.shape.mult = self.mult;
+ 	physics.addBody(self.shape, "kinematic", {shape = {-50,-30, 50,-30, 50, 0, -50, 0}}); 
 end
 
 return orangeFlowers
