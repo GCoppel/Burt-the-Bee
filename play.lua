@@ -27,7 +27,6 @@ local settingsDeserialized; --Stores deserialized JSON data for audio settings
 
 -- "scene:create()"
 function scene:create(event)
-
    spawned = display.newGroup();
    gameRunning = false; --Game doesn't run until player taps screen
 
@@ -39,6 +38,7 @@ function scene:create(event)
    physics.pause();
 
    -- Image Sheets information
+   -- GRASS AND FLOWERS
    opt =
    {
       frames = {
@@ -50,6 +50,8 @@ function scene:create(event)
    }
    sheet = graphics.newImageSheet("Various Sprites.png", opt);
 
+   ---------------------------------------------
+   -- BEEKEEPER
    opt2 =
    {
       frames = {
@@ -58,6 +60,8 @@ function scene:create(event)
    }
    sheet2 = graphics.newImageSheet("beekeeper.png", opt2);
 
+   ---------------------------------------------
+   -- HORNET AND BONUS ITEMS
    opt3 = {
       frames = {
          { x = 55, y = 5, width = 57, height = 58 }, -- 1, Hornet Frame 1
@@ -69,6 +73,8 @@ function scene:create(event)
    }
    sheet3 = graphics.newImageSheet("Hornet_Sprites.png", opt3)
 
+   ---------------------------------------------
+   -- BURT
    opt4 = {
       frames = {
          { x = 11, y = 12, width = 53, height = 38 }, -- 1, Burt Frame 1
@@ -97,12 +103,13 @@ function scene:create(event)
 
    settingsDeserialized = json.decode(readData); --Stores deserialized JSON data
 
-
+   -- Function to delete the grass once it is off screen
    local function deleteGrass(obj)
       display.remove(obj)
       obj = nil
    end
 
+   -- Function to create grass off screen and delete it once it is on the other side of the screen
    local function createGrass()
       local grass = display.newImage(sheet, 4)
       grass.x = 800
@@ -111,6 +118,7 @@ function scene:create(event)
       transition.to(grass, { x = -600, time = 10000, onComplete = deleteGrass })
    end
 
+   -- Create Burt
    Burt = display.newSprite(sheet4, sequenceData)
    Burt.x = -display.contentWidth + 500;
    Burt.y = display.contentCenterY;
@@ -120,6 +128,7 @@ function scene:create(event)
    local burtOutline = graphics.newOutline(2, sheet4, 1)
    physics.addBody(Burt, "dynamic", {outline = burtOutline})
 
+   -- Create off screen cieiling
    local ceiling = display.newRect(display.contentCenterX, 0, 2000, 1);
    ceiling:setFillColor(0, 0, 0, 0);
    sceneGroup:insert(ceiling);
@@ -130,15 +139,15 @@ function scene:create(event)
    tapToStartText:setFillColor(0, 0, 0, 0.5);
    sceneGroup:insert(tapToStartText);
 
+   -- Check for collision with ground
    local function groundCollision()
-      print("ground hit, dead");
       checkLives()
    end
 
+   -- Function used to determine game over from collisions
    function checkLives()
       if (lives == 1) then
          lives = lives - 1
-         --timerGroup:removeSelf()
          composer.gotoScene("gameOver", {
             params = {
                finalScore = score;
@@ -149,6 +158,7 @@ function scene:create(event)
       end
    end
 
+   -- Create the base ground
    local ground = display.newRect(display.contentCenterX, display.contentHeight, 1000, 10);
    ground:setFillColor(0, 1, 0);
    sceneGroup:insert(ground);
@@ -156,7 +166,6 @@ function scene:create(event)
    ground:addEventListener("collision", groundCollision)
 
    --Pause:
-   -- BUG: Sometimes unpausing does not bring back both timer functions
    local function Pause()
       physics.pause();
       timer.pauseAll();
@@ -172,8 +181,8 @@ function scene:create(event)
       });
    end
 
-   -- timer display and funtion
-   -- create timer group to be removed at game over
+   -- Timer/score display and funtion
+   -- Create timer group to be removed at game over
    local timerGroup = display.newGroup();
    timerGroup.x = 250;
    timerGroup.alpha = 0;
@@ -191,6 +200,7 @@ function scene:create(event)
    timerGroup:insert(timeVal);
    sceneGroup:insert(timerGroup);
 
+   -- Function used to make Burt fly when the screen is tapped
    function flyUp()
       if (gameRunning == false) then -- Start game (only runs once)
          transition.to(tapToStartText, { alpha = 0, time = 500 }); --Hide "Tap to Start" message
@@ -248,32 +258,32 @@ function scene:create(event)
    end
 
    timer.performWithDelay(10, setRotation, 0);
-
 end
 
 -- "scene:show()"
 function scene:show(event)
-
    local sceneGroup = self.view
    local phase = event.phase
 
    if (phase == "will") then
+      -- Called when the scene is still off screen (but is about to come on screen).
       display.setDefault("background", 0, 0.9, 1); --Set background to a skyblue color
 
       --RESET GAME VARIABLES
       spawnedHornets = {}
 
-      -- Called when the scene is still off screen (but is about to come on screen).
    elseif (phase == "did") then
+      -- Variables used for random generation
       local hornetOrLife;
       local bonusOrLife;
       local object;
 
+      -- Function to call gameOver if caught
       local function armCollision()
          composer.gotoScene("gameOver");
       end
 
-      -- display arm
+      -- Display arm
       local arm = display.newImage(sheet2, 1);
       arm.x = -1000;
       arm.y = 170;
@@ -283,7 +293,7 @@ function scene:show(event)
       arm:addEventListener("collision", checkLives);
       sceneGroup:insert(arm);
 
-      -- move arm up and down
+      -- Move arm up and down
       local function moveArm()
          transition.to(arm, { y = 20 })
          if (arm.y == 20) then
@@ -293,13 +303,9 @@ function scene:show(event)
 
       transition.to(arm, {time=5000, x = -160, onComplete=timer.performWithDelay(700,moveArm,0)});
 
-      -- timer to repeat movement of arm
-      --timer.performWithDelay(700, moveArm, 0)
-
 
       local objects = {}; --Contains spawned objects. Used for checking for offscreen objects that can be removed from memory
       local objectIndex; --Location of target object in "objects" table
-
       ---------------------------------------------------------------------
       -- ENEMY AND BONUS GENERATION
 
@@ -387,11 +393,7 @@ function scene:show(event)
                table.insert(spawnedHornets, object)
             end
 
-            --Make enemies and bonuses smaller and easier to avoid:
-            --object.xScale = 0.75;
-            --object.yScale = 0.75;
-
-            physics.addBody(object, "kinematic", { outline = objectOutline });
+            physics.addBody(object, "kinematic", {outline = objectOutline});
             object.isSensor = true;
             object:setLinearVelocity(-125, 0);
 
@@ -404,22 +406,20 @@ function scene:show(event)
          end
       end
 
-      -- Once we get distance/score working, I am thinking of basing the spawn on that with a cap of course
-      timer.performWithDelay(
-         2500 + math.random(1500),
-         spawnObject,
-         0
-      )
+      -- Call timer to randomly generate enemies and bonuses
+      timer.performWithDelay(2500 + math.random(1500), spawnObject, 0)
 
       ---------------------------------------------------------------------
       -- FLOWER GENERATION
       local function flowerCollisionDetected(event)
          if (event.phase == "began") then
+            -- Burt is now on top of the flower
             multiplier = event.target.mult
             local xv, yv = event.target.getLinearVelocity;
             Burt:setLinearVelocity(-40,0);
          end
          if (event.phase == "ended") then
+            -- Burt has left the flower
             multiplier = 1
             local xv, yv = Burt.getLinearVelocity;
             Burt:setLinearVelocity(10,yv);
@@ -450,13 +450,13 @@ function scene:show(event)
          end
       end
 
+      -- Call timer to randomly generate flowers
       timer.performWithDelay(3000, flowerGeneration, 0)
    end
 end
 
 -- "scene:hide()"
 function scene:hide(event)
-
    local sceneGroup = self.view
    local phase = event.phase
 

@@ -7,14 +7,12 @@ local scene = composer.newScene()
 -- All code outside of the listener functions will only be executed ONCE
 -- unless "composer.removeScene()" is called.
 ---------------------------------------------------------------------------------
-
 -- local forward references should go here
 
 ---------------------------------------------------------------------------------
 
 -- "scene:create()"
 function scene:create(event)
-
    local sceneGroup = self.view
 
    -- Image Sheet information
@@ -25,7 +23,6 @@ function scene:create(event)
          { x = 53, y = 12,  width = 43, height = 45}   -- 2, Locked
       }
    }
-
    local sheet = graphics.newImageSheet("Trophy.png", opt);
 
    --Read in acheivements from Json file "stats.json":
@@ -39,8 +36,6 @@ function scene:create(event)
    readFile = nil;
 
    local statsDeserialized = json.decode(readData); --Contains deserialized data
-   print(statsDeserialized.highestScore)
-   print(statsDeserialized.achievement1Unlocked)
 
    -- TROPHY 1: Score at least 25 points
    local trophy1;
@@ -187,7 +182,6 @@ end
 
 -- "scene:show()"
 function scene:show(event)
-
    local sceneGroup = self.view
    local phase = event.phase
 
@@ -202,7 +196,6 @@ end
 
 -- "scene:hide()"
 function scene:hide(event)
-
    local sceneGroup = self.view
    local phase = event.phase
 

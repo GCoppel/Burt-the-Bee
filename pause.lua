@@ -5,16 +5,13 @@ local scene = composer.newScene()
 -- All code outside of the listener functions will only be executed ONCE
 -- unless "composer.removeScene()" is called.
 ---------------------------------------------------------------------------------
-
 -- local forward references should go here
 
 ---------------------------------------------------------------------------------
 
 -- "scene:create()"
 function scene:create(event)
-
     local sceneGroup = self.view
-
 
     --Pause Overlay:
     local pauseOverlay = display.newRect(0, 0, 10000, 10000);
@@ -74,12 +71,10 @@ function scene:create(event)
     }
     local unpauseButton = widget.newButton(options);
     sceneGroup:insert(unpauseButton);
-
 end
 
 -- "scene:show()"
 function scene:show(event)
-
     local sceneGroup = self.view
     local phase = event.phase
 
@@ -92,7 +87,6 @@ end
 
 -- "scene:hide()"
 function scene:hide(event)
-
     local sceneGroup = self.view
     local phase = event.phase
 

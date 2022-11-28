@@ -1,6 +1,5 @@
 -----------------------------------------------------------------------------------------
 -- Used to create the Flowers class for Burt the Bee
---
 -----------------------------------------------------------------------------------------
 
 local Flower = {tag="flower", xPos=0, yPos=0, velocity = 0, mult = 0.0};
@@ -24,11 +23,6 @@ end
 --Used to move flower across screen
 function Flower:move()
 	self.shape:setLinearVelocity(self.velocity, 0)
-end
-
---Used to add multiplier to points(?????)
-function Flower:multiplyPoints() 
-	multiplier = self.mult
 end
 
 return Flower

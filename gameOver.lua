@@ -6,23 +6,16 @@ local scene = composer.newScene()
 -- All code outside of the listener functions will only be executed ONCE
 -- unless "composer.removeScene()" is called.
 ---------------------------------------------------------------------------------
-
 -- local forward references should go here
 
 ---------------------------------------------------------------------------------
 
+-- Global Variables
 local finalScoreVal = 0;
 local highestScoreVal = 0;
---local hasUnlockedTrophy1 = false
-local gameStats = {
-    highestScore = 0,
-    achievement1Unlocked = false
-}
-local lastSavedGameStats
 
 -- "scene:create()"
 function scene:create(event)
-
     local sceneGroup = self.view
 
     --TITLE:
@@ -67,10 +60,7 @@ function scene:create(event)
         height = 50,
         label = "Home",
         labelColor = { default = { 1, 1, 0 }, over = { 0, 0, 0 } },
-        -- ◼ default: color
-        -- ◼ over: color changes to this when you press the button
         onPress = buttonPress,
-        -- ◼ See also onPress,  onRelease
         shape = "roundedRect",
         fillColor = { default = { 0, 0, 0, 0.1 }, over = { 1, 1, 0 } },
         strokeColor = { default = { 1, 1, 0 }, over = { 1, 1, 0 } },
@@ -88,10 +78,7 @@ function scene:create(event)
         height = 50,
         label = "Play Again",
         labelColor = { default = { 1, 1, 0 }, over = { 0, 0, 0 } },
-        -- ◼ default: color
-        -- ◼ over: color changes to this when you press the button
         onPress = buttonPress,
-        -- ◼ See also onPress,  onRelease
         shape = "roundedRect",
         fillColor = { default = { 0, 0, 0, 0.1 }, over = { 1, 1, 0 } },
         strokeColor = { default = { 1, 1, 0 }, over = { 1, 1, 0 } },
@@ -104,7 +91,6 @@ end
 
 -- "scene:show()"
 function scene:show(event)
-
     local sceneGroup = self.view
     local phase = event.phase
 
@@ -113,6 +99,7 @@ function scene:show(event)
         params = event.params
         finalScoreVal = params.finalScore
 
+        -- Read the data contianed in the JSON file
         local readFile;
         local readData;
         local writeFile;
@@ -144,6 +131,7 @@ function scene:show(event)
 
             highestScoreVal = finalScoreVal; --Update highest score for onscreen output
 
+            -- Write data to JSON
             local newScore = json.encode(newStats);
             writeFile = io.open(statsLocation, "w");
             writeFile:write(newScore);
@@ -161,8 +149,7 @@ function scene:show(event)
                 highestScore = statsDeserialized.highestScore
             }
 
-            --highestScoreVal = finalScoreVal; --Update highest score for onscreen output
-
+            -- Write data to JSON
             local newScore = json.encode(newStats);
             writeFile = io.open(statsLocation, "w");
             writeFile:write(newScore);
@@ -172,11 +159,13 @@ function scene:show(event)
 
     elseif (phase == "did") then
         audio.stop(); --Stop background jazz
+
         --Play hit sound effect:
         local hitEffect = audio.loadSound("Hit");
         audio.play(hitEffect);
+
         composer.removeScene("play"); --Reset "play" scene
-        display.setDefault("background", 0, 0, 0); --Set background to a skyblue color
+        display.setDefault("background", 0, 0, 0); --Set background to black
         scoreTextNum.text = finalScoreVal
         highscoreTextNum.text = highestScoreVal
     end
@@ -184,7 +173,6 @@ end
 
 -- "scene:hide()"
 function scene:hide(event)
-
     local sceneGroup = self.view
     local phase = event.phase
 

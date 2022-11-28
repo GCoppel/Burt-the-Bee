@@ -1,22 +1,20 @@
 local composer = require("composer")
-local scene = composer.newScene()
 local json = require("json")
+local scene = composer.newScene()
 
 ---------------------------------------------------------------------------------
 -- All code outside of the listener functions will only be executed ONCE
 -- unless "composer.removeScene()" is called.
 ---------------------------------------------------------------------------------
-
 -- local forward references should go here
 
 ---------------------------------------------------------------------------------
 
 -- "scene:create()"
 function scene:create(event)
-
     local sceneGroup = self.view
 
-    --BACKGROUND:
+    --BACKGROUND IMAGE:
     local menuBG = display.newImage("Menu_BG.png")
     menuBG.x = display.contentCenterX
     menuBG.y = display.contentCenterY
@@ -56,10 +54,7 @@ function scene:create(event)
         height = 50,
         label = "Settings",
         labelColor = { default = { 1, 1, 0 }, over = { 0, 0, 0 } },
-        -- ◼ default: color
-        -- ◼ over: color changes to this when you press the button
         onPress = buttonPress,
-        -- ◼ See also onPress,  onRelease
         shape = "roundedRect",
         fillColor = { default = { 0, 0, 0, 0.1 }, over = { 1, 1, 0 } },
         strokeColor = { default = { 1, 1, 0 }, over = { 1, 1, 0 } },
@@ -77,10 +72,7 @@ function scene:create(event)
         height = 50,
         label = "Credits",
         labelColor = { default = { 1, 1, 0 }, over = { 0, 0, 0 } },
-        -- ◼ default: color
-        -- ◼ over: color changes to this when you press the button
         onPress = buttonPress,
-        -- ◼ See also onPress,  onRelease
         shape = "roundedRect",
         fillColor = { default = { 0, 0, 0, 0.1 }, over = { 1, 1, 0 } },
         strokeColor = { default = { 1, 1, 0 }, over = { 1, 1, 0 } },
@@ -98,10 +90,7 @@ function scene:create(event)
         height = 50,
         label = "Play",
         labelColor = { default = { 1, 1, 0 }, over = { 0, 0, 0 } },
-        -- ◼ default: color
-        -- ◼ over: color changes to this when you press the button
         onPress = buttonPress,
-        -- ◼ See also onPress,  onRelease
         shape = "roundedRect",
         fillColor = { default = { 0, 0, 0, 0.1 }, over = { 1, 1, 0 } },
         strokeColor = { default = { 1, 1, 0 }, over = { 1, 1, 0 } },
@@ -139,7 +128,6 @@ end
 
 -- "scene:show()"
 function scene:show(event)
-
     local sceneGroup = self.view
     local phase = event.phase
 
@@ -152,7 +140,6 @@ end
 
 -- "scene:hide()"
 function scene:hide(event)
-
     local sceneGroup = self.view
     local phase = event.phase
 
